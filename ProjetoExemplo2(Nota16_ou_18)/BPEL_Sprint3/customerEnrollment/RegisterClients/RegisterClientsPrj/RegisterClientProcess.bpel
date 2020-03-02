@@ -1,0 +1,335 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Oracle JDeveloper BPEL Designer 
+  
+  Created: Thu Apr 25 16:23:21 WEST 2019
+  Author:  oracle
+  Type: BPEL 2.0 Process
+  Purpose: Synchronous BPEL Process
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->
+<process name="RegisterClientProcess"
+               targetNamespace="http://xmlns.oracle.com/RegisterClients/RegisterClientsPrj/RegisterClientProcess"
+               xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+               xmlns:client="http://xmlns.oracle.com/RegisterClients/RegisterClientsPrj/RegisterClientProcess"
+               xmlns:ora="http://schemas.oracle.com/xpath/extension"
+               xmlns:bpelx="http://schemas.oracle.com/bpel/extension"
+         xmlns:bpel="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:ns1="http://xmlns.oracle.com/pcbpel/adapter/db/RegisterClients/RegisterClientsPrj/ClientDB"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:ns2="http://www.example.org"
+         xmlns:ns3="http://xmlns.oracle.com/pcbpel/adapter/db/top/ClientDB"
+         xmlns:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20"
+         xmlns:bpws="http://schemas.xmlsoap.org/ws/2003/03/business-process/"
+         xmlns:oraext="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.ExtFunc"
+         xmlns:dvm="http://www.oracle.com/XSL/Transform/java/oracle.tip.dvm.LookupValue"
+         xmlns:hwf="http://xmlns.oracle.com/bpel/workflow/xpath"
+         xmlns:ids="http://xmlns.oracle.com/bpel/services/IdentityService/xpath"
+         xmlns:bpm="http://xmlns.oracle.com/bpmn20/extensions"
+         xmlns:xdk="http://schemas.oracle.com/bpel/extension/xpath/function/xdk"
+         xmlns:xref="http://www.oracle.com/XSL/Transform/java/oracle.tip.xref.xpath.XRefXPathFunctions"
+         xmlns:ldap="http://schemas.oracle.com/xpath/extension/ldap"
+         xmlns:ns4="http://registerclientsprj/"
+         xmlns:ns5="http://xmlns.oracle.com/pcbpel/adapter/db/RegisterClients/RegisterClientsPrj/ClientDB2"
+         xmlns:ns6="http://xmlns.oracle.com/pcbpel/adapter/db/top/ClientDB2">
+
+    <import namespace="http://xmlns.oracle.com/RegisterClients/RegisterClientsPrj/RegisterClientProcess" location="RegisterClientProcess.wsdl" importType="http://schemas.xmlsoap.org/wsdl/"/>
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        PARTNERLINKS                                                      
+        List of services participating in this BPEL process               
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    --> 
+  <partnerLinks>
+    <!-- 
+      The 'client' role represents the requester of this service. It is 
+      used for callback. The location and correlation information associated
+      with the client role are automatically set using WS-Addressing.
+    -->
+    <partnerLink name="registerclientprocess_client" partnerLinkType="client:RegisterClientProcess" myRole="RegisterClientProcessProvider"/>
+    <partnerLink name="AddressValidator" partnerLinkType="ns4:AddressValidator"
+                 partnerRole="CTTAddressWebService"/>
+    <partnerLink name="NIFValidator" partnerLinkType="ns4:NIFValidaotr"
+                 partnerRole="NIFValidatorWebService"/>
+    <partnerLink name="ClientDB2" partnerLinkType="ns5:ClientDB2_plt"
+                 partnerRole="ClientDB2_role"/>
+    <partnerLink name="WriteToCloudDB" partnerLinkType="ns4:WriteToCloudDB"
+                 partnerRole="SendToCloudDBWebService"/>
+    <partnerLink name="CreditCardValidator"
+                 partnerLinkType="ns4:CreditCardValidator"
+                 partnerRole="CreditCardWebService"/>
+  </partnerLinks>
+
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      VARIABLES                                                        
+      List of messages and XML documents used within this BPEL process 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <variables>
+    <!-- Reference to the message passed as input during initiation -->
+    <variable name="inputVariable" messageType="client:RegisterClientProcessRequestMessage"/>
+
+    <!-- Reference to the message that will be returned to the requester-->
+    <variable name="outputVariable" messageType="client:RegisterClientProcessResponseMessage"/>
+    <variable name="InvokeZipcodeValidator_isValidZipcode_InputVariable"
+              messageType="ns4:isValidZipcode"/>
+    <variable name="InvokeZipcodeValidator_isValidZipcode_OutputVariable"
+              messageType="ns4:isValidZipcodeResponse"/>
+    <variable name="InvokeNIFValidator_isValidNIF_InputVariable"
+              messageType="ns4:isValidNIF"/>
+    <variable name="InvokeNIFValidator_isValidNIF_OutputVariable"
+              messageType="ns4:isValidNIFResponse"/>
+    <variable name="InvokeGetExistingClient_ClientDB2Select_InputVariable"
+              messageType="ns5:ClientDB2Select_inputParameters"/>
+    <variable name="InvokeGetExistingClient_ClientDB2Select_OutputVariable"
+              messageType="ns5:ClientCollection_msg"/>
+    <variable name="InvokeDBWrite_insert_InputVariable_2"
+              messageType="ns5:ClientCollection_msg"/>
+    <variable name="InvokeSelectToken_ClientDB2Select_InputVariable"
+              messageType="ns5:ClientDB2Select_inputParameters"/>
+    <variable name="InvokeSelectToken_ClientDB2Select_OutputVariable"
+              messageType="ns5:ClientCollection_msg"/>
+    <variable name="InvokeCloudDBWrite_sendToCloudDB_InputVariable"
+              messageType="ns4:sendToCloudDB"/>
+    <variable name="InvokeCreditCardValidator_validateNumber_InputVariable"
+              messageType="ns4:validateNumber"/>
+    <variable name="InvokeCreditCardValidator_validateNumber_OutputVariable"
+              messageType="ns4:validateNumberResponse"/>
+  </variables>
+
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+     ORCHESTRATION LOGIC                                               
+     Set of activities coordinating the flow of messages across the    
+     services integrated within this business process                  
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <sequence name="main">
+
+    <!-- Receive input from requestor. (Note: This maps to operation defined in RegisterClientProcess.wsdl) -->
+    <receive name="receiveInput" partnerLink="registerclientprocess_client"
+             portType="client:RegisterClientProcess" operation="process"
+             variable="inputVariable" createInstance="yes"/>
+    <if name="IsStudent">
+      <documentation>
+        <![CDATA[HasDiscount]]>
+      </documentation>
+      <condition>contains($inputVariable.payload/ns2:isStudent,'yes')  or contains($inputVariable.payload/ns2:isStudent,'Yes') </condition>
+      <assign name="AssignDiscount">
+        <copy>
+          <from>0.5</from>
+          <to>$InvokeDBWrite_insert_InputVariable_2.ClientCollection/ns6:Client/ns6:discount</to>
+        </copy>
+        <copy>
+          <from>0.5</from>
+          <to>$InvokeCloudDBWrite_sendToCloudDB_InputVariable.parameters/arg2</to>
+        </copy>
+      </assign>
+      <else>
+        <documentation>
+          <![CDATA[DoesntHaveDiscount]]>
+        </documentation>
+        <assign name="AssignZeroDiscount">
+          <copy>
+            <from>0</from>
+            <to>$InvokeDBWrite_insert_InputVariable_2.ClientCollection/ns6:Client/ns6:discount</to>
+          </copy>
+          <copy>
+            <from>0</from>
+            <to>$InvokeCloudDBWrite_sendToCloudDB_InputVariable.parameters/arg2</to>
+          </copy>
+        </assign>
+      </else>
+    </if>
+    <assign name="AssignInputs">
+      <copy>
+        <from>$inputVariable.payload/ns2:Name</from>
+        <to>$InvokeDBWrite_insert_InputVariable_2.ClientCollection/ns6:Client/ns6:name</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:BankAccountNumber</from>
+        <to>$InvokeCreditCardValidator_validateNumber_InputVariable.parameters/arg0</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:Address</from>
+        <to>$InvokeDBWrite_insert_InputVariable_2.ClientCollection/ns6:Client/ns6:address</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:Zipcode</from>
+        <to>$InvokeDBWrite_insert_InputVariable_2.ClientCollection/ns6:Client/ns6:zipcode</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:Nif</from>
+        <to>$InvokeDBWrite_insert_InputVariable_2.ClientCollection/ns6:Client/ns6:nif</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:BankAccountNumber</from>
+        <to>$InvokeDBWrite_insert_InputVariable_2.ClientCollection/ns6:Client/ns6:bankAccountNumber</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:Email</from>
+        <to>$InvokeDBWrite_insert_InputVariable_2.ClientCollection/ns6:Client/ns6:email</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:Password</from>
+        <to>$InvokeDBWrite_insert_InputVariable_2.ClientCollection/ns6:Client/ns6:password</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:PhoneNumber</from>
+        <to>$InvokeDBWrite_insert_InputVariable_2.ClientCollection/ns6:Client/ns6:phoneNumber</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:Email</from>
+        <to>$InvokeSelectToken_ClientDB2Select_InputVariable.ClientDB2Select_inputParameters/ns6:customerEmail</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:Email</from>
+        <to>$InvokeGetExistingClient_ClientDB2Select_InputVariable.ClientDB2Select_inputParameters/ns6:customerEmail</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:Nif</from>
+        <to>$InvokeNIFValidator_isValidNIF_InputVariable.parameters/arg0</to>
+      </copy>
+      <copy>
+        <from>$inputVariable.payload/ns2:Zipcode</from>
+        <to>$InvokeZipcodeValidator_isValidZipcode_InputVariable.parameters/arg0</to>
+      </copy>
+    </assign>
+    <invoke name="InvokeCreditCardValidator" bpelx:invokeAsDetail="no"
+            partnerLink="CreditCardValidator"
+            portType="ns4:CreditCardWebService" operation="validateNumber"
+            inputVariable="InvokeCreditCardValidator_validateNumber_InputVariable"
+            outputVariable="InvokeCreditCardValidator_validateNumber_OutputVariable"/>
+    <if name="IsCreditCardValid">
+      <documentation>
+        <![CDATA[VaildCreditCard]]>
+      </documentation>
+      <condition>$InvokeCreditCardValidator_validateNumber_OutputVariable.parameters/return = 'true'</condition>
+      <sequence>
+        <invoke name="InvokeZipcodeValidator" bpelx:invokeAsDetail="no"
+                partnerLink="AddressValidator"
+                portType="ns4:CTTAddressWebService" operation="isValidZipcode"
+                inputVariable="InvokeZipcodeValidator_isValidZipcode_InputVariable"
+                outputVariable="InvokeZipcodeValidator_isValidZipcode_OutputVariable"/>
+        <if name="IsZipcodeValid">
+          <documentation>
+            <![CDATA[ValidZipcode]]>
+          </documentation>
+          <condition>$InvokeZipcodeValidator_isValidZipcode_OutputVariable.parameters/return = 'true'</condition>
+          <sequence>
+            <invoke name="InvokeNIFValidator" bpelx:invokeAsDetail="no"
+                    partnerLink="NIFValidator"
+                    portType="ns4:NIFValidatorWebService" operation="isValidNIF"
+                    inputVariable="InvokeNIFValidator_isValidNIF_InputVariable"
+                    outputVariable="InvokeNIFValidator_isValidNIF_OutputVariable"/>
+            <if name="IsNIFValid">
+              <documentation>
+                <![CDATA[ValidNIF]]>
+              </documentation>
+              <condition>$InvokeNIFValidator_isValidNIF_OutputVariable.parameters/return = 'true'</condition>
+              <sequence>
+                <invoke name="InvokeGetExistingClient" partnerLink="ClientDB2"
+                        portType="ns5:ClientDB2_ptt" operation="ClientDB2Select"
+                        inputVariable="InvokeGetExistingClient_ClientDB2Select_InputVariable"
+                        outputVariable="InvokeGetExistingClient_ClientDB2Select_OutputVariable"
+                        bpelx:invokeAsDetail="no"/>
+                <if name="ClientAlreadyExists">
+                  <documentation>
+                    <![CDATA[RejectNewClient]]>
+                  </documentation>
+                  <condition>$InvokeGetExistingClient_ClientDB2Select_OutputVariable.ClientCollection/ns6:Client/ns6:id != 'null'</condition>
+                  <assign name="AssignRejectOutput">
+                    <copy>
+                      <from>'This email is already registered!'</from>
+                      <to>$outputVariable.payload/ns2:Token</to>
+                    </copy>
+                  </assign>
+                  <else>
+                    <documentation>
+                      <![CDATA[CreateNewClient]]>
+                    </documentation>
+                    <sequence>
+                      <invoke name="InvokeDBWrite" partnerLink="ClientDB2"
+                              portType="ns5:ClientDB2_ptt" operation="insert"
+                              inputVariable="InvokeDBWrite_insert_InputVariable_2"
+                              bpelx:invokeAsDetail="no"/>
+                      <invoke name="InvokeSelectToken" partnerLink="ClientDB2"
+                              portType="ns5:ClientDB2_ptt"
+                              operation="ClientDB2Select"
+                              inputVariable="InvokeSelectToken_ClientDB2Select_InputVariable"
+                              outputVariable="InvokeSelectToken_ClientDB2Select_OutputVariable"
+                              bpelx:invokeAsDetail="no"/>
+                      <assign name="AssignWriteToCloudDB">
+                        <copy>
+                          <from>$InvokeSelectToken_ClientDB2Select_OutputVariable.ClientCollection/ns6:Client/ns6:id</from>
+                          <to>$InvokeCloudDBWrite_sendToCloudDB_InputVariable.parameters/arg0</to>
+                        </copy>
+                        <copy>
+                          <from>'valid'</from>
+                          <to>$InvokeCloudDBWrite_sendToCloudDB_InputVariable.parameters/arg1</to>
+                        </copy>
+                      </assign>
+                      <invoke name="InvokeCloudDBWrite"
+                              bpelx:invokeAsDetail="no"
+                              partnerLink="WriteToCloudDB"
+                              portType="ns4:SendToCloudDBWebService"
+                              operation="sendToCloudDB"
+                              inputVariable="InvokeCloudDBWrite_sendToCloudDB_InputVariable"/>
+                      <assign name="AssignOutput">
+                        <copy>
+                          <from>$InvokeSelectToken_ClientDB2Select_OutputVariable.ClientCollection/ns6:Client/ns6:id</from>
+                          <to>$outputVariable.payload/ns2:Token</to>
+                        </copy>
+                      </assign>
+                    </sequence>
+                  </else>
+                </if>
+              </sequence>
+              <else>
+                <documentation>
+                  <![CDATA[InvalidNIF]]>
+                </documentation>
+                <assign name="AssignInvalidNIFOutput">
+                  <copy>
+                    <from>'Invalid NIF!'</from>
+                    <to>$outputVariable.payload/ns2:Token</to>
+                  </copy>
+                </assign>
+              </else>
+            </if>
+          </sequence>
+          <else>
+            <documentation>
+              <![CDATA[InvalidZipcode]]>
+            </documentation>
+            <sequence name="Sequence1">
+              <assign name="AssignInvalidZipcodeOutput">
+                <copy>
+                  <from>'Invalid Zipcode!'</from>
+                  <to>$outputVariable.payload/ns2:Token</to>
+                </copy>
+              </assign>
+            </sequence>
+          </else>
+        </if>
+      </sequence>
+      <else>
+        <documentation>
+          <![CDATA[InvalidCreditCard]]>
+        </documentation>
+        <assign name="AssignInvalidCreditCardOutput">
+          <copy>
+            <from>'Invalid Credit Card!'</from>
+            <to>$outputVariable.payload/ns2:Token</to>
+          </copy>
+        </assign>
+      </else>
+    </if>
+    <!-- Generate reply to synchronous request -->
+    <reply name="replyOutput" partnerLink="registerclientprocess_client"
+           portType="client:RegisterClientProcess" operation="process"
+           variable="outputVariable"/>
+  </sequence>
+</process>

@@ -1,0 +1,28 @@
+<?binding.jca ClientDB2_db.jca?>
+<wsdl:definitions name="ClientDB2" targetNamespace="http://xmlns.oracle.com/pcbpel/adapter/db/RegisterClients/RegisterClientsPrj/ClientDB2" xmlns:tns="http://xmlns.oracle.com/pcbpel/adapter/db/RegisterClients/RegisterClientsPrj/ClientDB2" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:plt="http://schemas.xmlsoap.org/ws/2003/05/partner-link/" xmlns:top="http://xmlns.oracle.com/pcbpel/adapter/db/top/ClientDB2">
+    <plt:partnerLinkType name="ClientDB2_plt">
+        <plt:role name="ClientDB2_role">
+            <plt:portType name="tns:ClientDB2_ptt"/>
+        </plt:role>
+    </plt:partnerLinkType>
+    <wsdl:types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema">
+            <import namespace="http://xmlns.oracle.com/pcbpel/adapter/db/top/ClientDB2" schemaLocation="xsd/ClientDB2_table.xsd"/>
+        </schema>
+    </wsdl:types>
+    <wsdl:message name="ClientCollection_msg">
+        <wsdl:part name="ClientCollection" element="top:ClientCollection"/>
+    </wsdl:message>
+    <wsdl:message name="ClientDB2Select_inputParameters">
+        <wsdl:part name="ClientDB2Select_inputParameters" element="top:ClientDB2Select_customerEmailInputParameters"/>
+    </wsdl:message>
+    <wsdl:portType name="ClientDB2_ptt">
+        <wsdl:operation name="insert">
+            <wsdl:input message="tns:ClientCollection_msg"/>
+        </wsdl:operation>
+        <wsdl:operation name="ClientDB2Select">
+            <wsdl:input message="tns:ClientDB2Select_inputParameters"/>
+            <wsdl:output message="tns:ClientCollection_msg"/>
+        </wsdl:operation>
+    </wsdl:portType>
+</wsdl:definitions>

@@ -1,0 +1,31 @@
+Topic: Monitor<Operator>
+
+<checkIn><tariff>fixedPrice</tariff><userId>1</userId><timestamp>2019-05-10 15:30:26</timestamp></checkIn>
+<checkIn><tariff>variablePrice</tariff><userId>2</userId><timestamp>2019-04-27 15:31:26</timestamp></checkIn>
+<checkIn><tariff>operatorPrice</tariff><userId>3</userId><timestamp>2019-04-27 15:32:26</timestamp></checkIn>
+<checkIn><tariff>variablePrice</tariff><userId>4</userId><timestamp>2019-04-29 15:33:26</timestamp></checkIn>
+<checkIn><tariff>operatorPrice</tariff><userId>5</userId><timestamp>2019-04-27 15:34:26</timestamp></checkIn>
+<checkIn><tariff>fixedPrice</tariff><userId>6</userId><timestamp>2019-04-27 15:35:26</timestamp></checkIn>
+
+------------------------------------------------------------------------------------------------------------------------------------
+<checkOut><tariff>variablePrice</tariff><userId>1</userId><timestamp>2019-05-10 16:15:00</timestamp><hasStudentDiscount>0.0</hasStudentDiscount></checkOut>
+<checkOut><tariff>variablePrice</tariff><userId>2</userId><timestamp>2019-04-27 17:15:00</timestamp><hasStudentDiscount>0.5</hasStudentDiscount></checkOut>
+<checkOut><tariff>variablePrice</tariff><userId>3</userId><timestamp>2019-04-27 18:15:00</timestamp><hasStudentDiscount>0.0</hasStudentDiscount></checkOut>
+<checkOut><tariff>variablePrice</tariff><userId>4</userId><timestamp>2019-05-01 20:50:00</timestamp><hasStudentDiscount>0.5</hasStudentDiscount></checkOut>
+<checkOut><tariff>variablePrice</tariff><userId>5</userId><timestamp>2019-04-27 16:15:29</timestamp><hasStudentDiscount>0.5</hasStudentDiscount></checkOut>
+<checkOut><tariff>variablePrice</tariff><userId>6</userId><timestamp>2019-04-27 16:00:10</timestamp><hasStudentDiscount>0.5</hasStudentDiscount></checkOut>
+
+------------------------------------------------------------------------------------------------------------------------------------
+//operatorPrice
+<checkOut><tariff>operatorPrice</tariff><userId>1</userId><timestamp>2019-04-27 16:15:00</timestamp><operatorPrice>5.50</operatorPrice><hasStudentDiscount>0.5</hasStudentDiscount></checkOut>
+<checkOut><tariff>operatorPrice</tariff><userId>2</userId><timestamp>2019-05-27 16:30:00</timestamp><operatorPrice>5.00</operatorPrice></checkOut>
+<checkOut><tariff>operatorPrice</tariff><userId>3</userId><timestamp>2019-06-10 17:15:00</timestamp><operatorPrice>9.30</operatorPrice><hasStudentDiscount>0.5</hasStudentDiscount></checkOut>
+<checkOut><tariff>operatorPrice</tariff><userId>4</userId><timestamp>2019-05-01 20:50:00</timestamp><operatorPrice>2.10</operatorPrice></checkOut>
+<checkOut><tariff>operatorPrice</tariff><userId>5</userId><timestamp>2019-04-27 18:00:00</timestamp><operatorPrice>4.35</operatorPrice></checkOut>
+<checkOut><tariff>operatorPrice</tariff><userId>6</userId><timestamp>2019-04-27 16:30:00</timestamp><operatorPrice>3.00</operatorPrice></checkOut>
+
+------------------------------------------------------------------------------------------------------------------------------------
+Topic: Revenue<Operator>
+
+//Gerado automaticamente
+<paymentInfo><price>10.00</price><discount>5.00</discount><revenue>5.00</revenue><date>2019-03-31</date></paymentInfo>

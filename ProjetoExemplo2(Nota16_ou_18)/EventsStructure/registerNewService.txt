@@ -1,0 +1,3 @@
+('Metro', 'Viagem Unica', 'variablePrice','<checkOut><tariff></tariff><userId></userId><timestamp></timestamp><hasStudentDiscount></hasStudentDiscount></checkOut>')
+('Uber', 'Viagem Unica', 'fixedPrice','<checkOut><tariff></tariff><userId></userId><timestamp></timestamp><hasStudentDiscount></hasStudentDiscount></checkOut>')
+('Train', 'Viagem Unica', 'operatorPrice','<checkOut><tariff></tariff><userId></userId><timestamp></timestamp><hasStudentDiscount></hasStudentDiscount></checkOut>')

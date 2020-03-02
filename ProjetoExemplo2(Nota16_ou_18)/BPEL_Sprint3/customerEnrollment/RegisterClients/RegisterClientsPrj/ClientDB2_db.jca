@@ -1,0 +1,24 @@
+<adapter-config name="ClientDB2" adapter="Database Adapter" wsdlLocation="ClientDB2.wsdl" xmlns="http://platform.integration.oracle/blocks/adapter/fw/metadata">
+  
+  <connection-factory location="eis/DB/mydb" UIConnectionName="ConnectionDB4" adapterRef=""/>
+  <endpoint-interaction portType="ClientDB2_ptt" operation="insert">
+    <interaction-spec className="oracle.tip.adapter.db.DBWriteInteractionSpec">
+      <property name="DescriptorName" value="ClientDB2.Client"/>
+      <property name="DmlType" value="insert"/>
+      <property name="MappingsMetaDataURL" value="ClientDB2-or-mappings.xml"/>
+      <property name="DetectOmissions" value="true"/>
+      <property name="GetActiveUnitOfWork" value="false"/>
+    </interaction-spec>
+  </endpoint-interaction>
+
+  <endpoint-interaction portType="ClientDB2_ptt" operation="ClientDB2Select">
+    <interaction-spec className="oracle.tip.adapter.db.DBReadInteractionSpec">
+      <property name="DescriptorName" value="ClientDB2.Client"/>
+      <property name="QueryName" value="ClientDB2Select"/>
+      <property name="MappingsMetaDataURL" value="ClientDB2-or-mappings.xml"/>
+      <property name="ReturnSingleResultSet" value="false"/>
+      <property name="GetActiveUnitOfWork" value="false"/>
+    </interaction-spec>
+  </endpoint-interaction>
+
+</adapter-config>
