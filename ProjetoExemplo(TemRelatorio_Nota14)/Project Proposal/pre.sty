@@ -1,0 +1,61 @@
+% !TeX root = ./main.tex
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb}
+
+\usepackage[nolist,nohyperlinks]{acronym}
+\usepackage[inline]{enumitem}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{nameref}
+\usepackage[numbers]{natbib}
+\usepackage{setspace}
+\usepackage[figuresleft]{rotating}
+\usepackage[list=true]{subcaption}
+\usepackage{tocloft}
+\usepackage{tabularx}
+\usepackage{verbatim}
+
+\usepackage[hidelinks]{hyperref}
+\usepackage{cleveref}
+
+% --- settings ---
+
+% structure
+\setcounter{secnumdepth}{3}
+
+
+% --- package settings ---
+
+% asmmath
+\renewcommand*{\vec}[1]{\vv{#1}}
+\renewcommand*{\arraystretch}{1.2}
+
+% enumitem
+\setlist{
+  listparindent=\parindent,
+  parsep=0pt
+}
+
+% natbib
+\renewcommand{\bibname}{\refname}
+\renewcommand{\bibsection}{\section*{\bibname}}
+
+
+% llncs
+\titlerunning{MaaS Provider}
+\title{\the\titlerunning}
+\subtitle{Enterprise Integration Project Proposal}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+\author{
+  Rui Ventura \and Pedro Cerejo \\
+  81045~~~~~~~~~~~~~~81338 \\
+  ~\\
+  Alameda -- Group 11}
+\authorrunning{Group 11}
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+\institute{Instituto Superior Técnico, Universidade de Lisboa\\
+\email{pedro.cerejo+rui.ventura@tecnico.ulisboa.pt}}

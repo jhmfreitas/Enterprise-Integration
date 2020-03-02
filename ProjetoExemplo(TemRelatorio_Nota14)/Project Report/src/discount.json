@@ -1,0 +1,9 @@
+{
+  "type": "discount",
+  "token": "7aef23eb-136a-4132-b7b4-bd0e6cc2f8b1",
+  "timestamp": "2019-05-16T22:15:41.501",
+  "value": {
+    "a": 0.9,
+    "b": 500
+  }
+}
