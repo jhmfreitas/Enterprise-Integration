@@ -1,1 +1,0 @@
-- Mudar a maneira como escrevemos na BD da cloud --> usar WSDL ou Dreamfactory
