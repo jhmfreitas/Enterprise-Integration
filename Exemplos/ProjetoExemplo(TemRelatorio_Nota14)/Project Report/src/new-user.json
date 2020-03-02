@@ -1,0 +1,9 @@
+{
+  "type": "new-user",
+  "user": {
+    "id": "69c594b8-9e87-45cd-a188-cfdeeaedd220",
+    "email": "my.email@mail.com",
+    "first_name": "Foo",
+    "last_name": "Bar"
+  }
+}

@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <!-- Operator events -->
+    <mapping class="pt.ulisboa.tecnico.meic.ie.a11.settlement.CheckInEvent"/>
+    <mapping class="pt.ulisboa.tecnico.meic.ie.a11.settlement.CheckOutEvent"/>
+    <mapping class="pt.ulisboa.tecnico.meic.ie.a11.settlement.FlatFareEvent"/>
+    <mapping class="pt.ulisboa.tecnico.meic.ie.a11.settlement.OperatorDefinedEvent"/>
+    <!-- MaaS Events -->
+    <mapping class="pt.ulisboa.tecnico.meic.ie.a11.settlement.DiscountEvent"/>
+    <mapping class="pt.ulisboa.tecnico.meic.ie.a11.settlement.NewOperatorEvent"/>
+    <mapping class="pt.ulisboa.tecnico.meic.ie.a11.settlement.NewUserEvent"/>
+    <mapping class="pt.ulisboa.tecnico.meic.ie.a11.settlement.PaymentOrderEvent"/>
+  </session-factory>
+</hibernate-configuration>

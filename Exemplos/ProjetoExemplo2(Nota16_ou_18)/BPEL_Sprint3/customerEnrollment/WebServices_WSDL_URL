@@ -1,0 +1,11 @@
+AddressValidator:
+http://soabpm-vm.site:7001/RegisterClients-RegisterClientsPrj-context-root/CTTAddressWebServiceSoap12HttpPort?WSDL
+
+NIFValidator:
+http://soabpm-vm.site:7001/RegisterClients-RegisterClientsPrj-context-root/NIFValidatorWebServiceSoap12HttpPort?WSDL
+
+SendToCloudDB:
+http://soabpm-vm.site:7001/RegisterClients-RegisterClientsPrj-context-root/SendToCloudDBWebServiceSoap12HttpPort?WSDL
+
+CreditCard:
+http://soabpm-vm.site:7001/RegisterClients-RegisterClientsPrj-context-root/CreditCardWebServiceSoap12HttpPort?WSDL

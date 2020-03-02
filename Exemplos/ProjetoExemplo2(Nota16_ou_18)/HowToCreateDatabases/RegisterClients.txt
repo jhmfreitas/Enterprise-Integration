@@ -1,0 +1,48 @@
+//SOA Environment - Local table 
+
+CREATE TABLE client(
+	id 			numeric(8,0) NOT NULL,
+	name 			varchar(200) NOT NULL,
+	address 		varchar(200) NOT NULL,
+	zipcode 		varchar(10) NOT NULL,
+	nif 			varchar(10) NOT NULL,
+	bank_account_number 	varchar(16),
+	email 			varchar(200) NOT NULL,
+	password 		varchar(100) NOT NULL,
+	phone_number 		varchar(9),
+	discount  		numeric(3,3) NOT NULL,
+	primary	key(id)	
+);
+
+//Auto-increment id when creating a new client
+CREATE SEQUENCE auto_increment_clientId START WITH 1;
+
+CREATE OR REPLACE TRIGGER auto_increment_trigger
+BEFORE INSERT ON client 
+FOR EACH ROW
+BEGIN
+  SELECT auto_increment_clientId.NEXTVAL
+  INTO   :new.id
+  FROM   dual;
+END;
+/
+
+//*DISPLAY*: Format the display to show everything in one line in the shell (fullscreen)
+column name format a35;
+column address format a50;
+column email format a40;
+column password format a25;
+set linesize 300;
+
+--------------------------------------------------------------
+
+//Register client on the cloud table
+
+USE CustomerManagementService;
+
+CREATE TABLE CustomerStatus(
+user_id INT NOT NULL,
+status VARCHAR(100) NOT NULL,
+discount FLOAT,
+PRIMARY KEY (user_id)
+);

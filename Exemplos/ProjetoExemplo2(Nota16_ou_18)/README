@@ -1,0 +1,15 @@
+Passos para correr os microsserviços:
+
+1- Criar as base de dados na cloud com base no ficheiro "howTocreateDBTables"
+
+2- Criar os tópicos MonitorMetro, MonitorTrain, MonitorUber, RevenueMetro, RevenueTrain, RevenueUber numa instância da cloud com Kafka
+
+3- Na cloud, correr os miscrosserviços:
+>> mvn exec:java -Dexec.mainClass="services.CustomerManagementService"
+>> mvn exec:java -Dexec.mainClass="services.ServiceOfRevenueDistribution"
+
+4- Gerar os eventos conforme o ficheiro "eventsInOneLine"
+
+5- Verificar que a bases de dados de cada serviço é atualizada
+>> SELECT * FROM AccountManager;
+>> SELECT * FROM Settlement;

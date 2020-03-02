@@ -1,0 +1,9 @@
+CustomerManagement Microservice:
+http://ec2-54-86-10-203.compute-1.amazonaws.com/api/v2/CustomerManagementDB_API/_table/AccountManager?api_key=2240b8f7e5b7a2d5a550c02f1d5d33edbafa93c500af5bf0f5ef79ce12c1b1a4
+
+RevenueDistribution:
+http://ec2-54-86-10-203.compute-1.amazonaws.com/api/v2/RevenueDistributionDB_API/_table/Settlement?api_key=ae2322ce0a3968b24d245a6915d01e36eee18dcc1a55c22f2b8315759c8cc1ce
+
+
+
+(Mudar o DNS da instancia AWS)

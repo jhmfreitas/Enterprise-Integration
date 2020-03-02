@@ -1,0 +1,56 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
+  <filter>
+    <filter-name>JpsFilter</filter-name>
+    <filter-class>oracle.security.jps.ee.http.JpsFilter</filter-class>
+    <init-param>
+      <param-name>enable.anonymous</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>JpsFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+  <servlet>
+    <servlet-name>CTTAddressWebServiceSoap12HttpPort</servlet-name>
+    <servlet-class>registerclientsprj.CTTAddressWebService</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet>
+    <servlet-name>NIFValidatorWebServiceSoap12HttpPort</servlet-name>
+    <servlet-class>registerclientsprj.NIFValidatorWebService</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet>
+    <servlet-name>SendToCloudDBWebServiceSoap12HttpPort</servlet-name>
+    <servlet-class>registerclientsprj.SendToCloudDBWebService</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet>
+    <servlet-name>CreditCardWebServiceSoap12HttpPort</servlet-name>
+    <servlet-class>registerclientsprj.CreditCardWebService</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CTTAddressWebServiceSoap12HttpPort</servlet-name>
+    <url-pattern>/CTTAddressWebServiceSoap12HttpPort</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>NIFValidatorWebServiceSoap12HttpPort</servlet-name>
+    <url-pattern>/NIFValidatorWebServiceSoap12HttpPort</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SendToCloudDBWebServiceSoap12HttpPort</servlet-name>
+    <url-pattern>/SendToCloudDBWebServiceSoap12HttpPort</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>CreditCardWebServiceSoap12HttpPort</servlet-name>
+    <url-pattern>/CreditCardWebServiceSoap12HttpPort</url-pattern>
+  </servlet-mapping>
+</web-app>

@@ -1,0 +1,7 @@
+hibernate.connection.driver_class=org.mariadb.jdbc.Driver
+hibernate.connection.url=jdbc:mariadb://cluster.url/database
+hibernate.connection.user=root
+hibernate.connection.password=ins3cur3
+
+hibernate.dialect=org.hibernate.dialect.MariaDB103Dialect
+hibernate.hbm2ddl.auto=create
