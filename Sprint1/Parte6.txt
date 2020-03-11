@@ -1,0 +1,41 @@
+We decided to make a failure test for our Maas Operator using the T1_Uber topic.
+
+We started by checking that all the 3 brokers were well configured and who were the liders of the partitions of this topic:
+
+[IMAGE]
+
+
+Then we created a producer with the command: 
+
+java -jar MaaSMessageTaxiGenerator.jar --broker-list <Public_DNS>:9093,<Public_DNS>:9094,<Public_DNS>:9095 --topic T1_Uber --token-list jkdjdjs --throughput 2000 --typeMessage JSON
+
+(We decided to use a big value for the throughput to test if our Maas Operator could handle a big load)
+
+
+Then we created a consumer with the command: 
+
+/usr/local/kafka/bin/kafka-console-consumer.sh --bootstrap-server <Public_DNS>:9093,<Public_DNS>:9094,<Public_DNS>:9095 --topic T1_Uber --group g1
+
+
+After some time we ran this command to check the PID of the brokers:
+ps -ef |grep java |grep server
+
+
+Then we stopped broker 2:
+
+sudo kill <Broker_2_PID>
+
+and checked the change in the leaders:
+
+[IMAGE]
+
+The consumer continued to receive the messages
+
+
+After some time we stopped broker 3:
+
+sudo kill <Broker_3_PID>
+
+and checked the change in the leaders:
+
+[IMAGE]
