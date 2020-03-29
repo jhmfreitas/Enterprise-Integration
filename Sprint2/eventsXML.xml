@@ -1,0 +1,35 @@
+//Register new User
+<root>
+  <eventType>new-user</eventType>
+  <user>
+    <id>69c594cfdeeaedd220</id>
+    <email>user@gmail.com</email>
+    <firstName>Paulo</firstName>
+    <lastName>Neves</lastName>
+    <balance>500</balance>
+    <hasPass>true</hasPass>
+  </user>
+</root>
+
+//TripCost event
+<root>
+  <eventType>trip-cost</eventType>
+  <info>
+    <baseCost>23</baseCost>
+    <token>69c594cfdeeaedd220</token>
+    <hasPass>true</hasPass>
+    <tripId>tod89430d</tripId>
+    <operatorType>t1</operatorType>
+    <operatorName>Uber</operatorName>
+    <timeStamp>2020-02-29 20:57:10.294</timeStamp>
+  </info>
+</root>
+
+//Debit
+<root>
+  <eventType>debit</eventType>
+  <info>
+    <token>69c594cfdeeaedd220</token>
+    <amount>20</amount>
+  </info>
+</root>

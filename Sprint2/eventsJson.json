@@ -1,0 +1,49 @@
+//https: //www.convertjson.com/json-to-xml.htm
+
+//Register new User event
+{
+    "eventType": "new-user",
+    "user": {
+        "id": "69c594cfdeeaedd220",
+        "email": "user@gmail.com",
+        "firstName": "Paulo",
+        "lastName": "Neves",
+        "balance": "500",
+        "hasPass": "true"
+    }
+}
+
+//TripCost event
+{
+    "eventType": "trip-cost",
+    "info": {
+        "baseCost": "23",
+        "token": "69c594cfdeeaedd220",
+        "hasPass": "true",
+        "tripId": "tod89430d",
+        "operatorType": "t1",
+        "operatorName": "Uber",
+        "timeStamp": "2020-02-29 20:57:10.294"
+    }
+}
+
+//Debit event
+{
+    "eventType": "debit",
+    "info": {
+        "token": "69c594cfdeeaedd220",
+        "amount": "20"
+    }
+}
+
+//New event from T2 operators
+{
+    "Gira": {
+        "Usage": {
+            "Token":"t1",
+            "Time":"3600", -> just used for user history
+            "Price": "12.60",
+            "Timestamp":"2020-02-29 20: 57: 10.294"
+        }
+    }
+}
