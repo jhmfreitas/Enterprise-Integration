@@ -6,6 +6,7 @@
     "user": {
         "id": "69c594cfdeeaedd220",
         "email": "user@gmail.com",
+        "planType": "pre-paid", //or post-paid -> field used by payment service
         "firstName": "Paulo",
         "lastName": "Neves",
         "balance": "500",

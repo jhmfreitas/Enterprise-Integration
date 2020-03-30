@@ -6,6 +6,7 @@
     <email>user@gmail.com</email>
     <firstName>Paulo</firstName>
     <lastName>Neves</lastName>
+    <planType>pre-paid</planType>
     <balance>500</balance>
     <hasPass>true</hasPass>
   </user>
