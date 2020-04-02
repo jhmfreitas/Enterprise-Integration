@@ -1,0 +1,25 @@
+UserInfo(token,email,firstName,lastName,planType,hasPass)
+PK(token)
+
+UserBalance(token,balance)
+PK(token)
+token: FK(UserInfo)
+
+History(tripID,token,operatorName,timestamp)
+PK(tripID,timestamp)
+token: FK(UserInfo)
+
+T0History(tripID, timestamp, isCheckIn)
+PK(tripID,timestamp)
+tripID: FK(History)
+timestamp: FK(History)
+
+T1History(tripID, timestamp,price)
+PK(tripID,timestamp)
+tripID: FK(History)
+timestamp: FK(History)
+
+T2History(tripID, timestamp,time)
+PK(tripID,timestamp)
+tripID: FK(History)
+timestamp: FK(History)

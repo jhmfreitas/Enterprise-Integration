@@ -24,6 +24,7 @@
             "baseCost": "23",
             "token": "69c594cfdeeaedd220",
             "hasPass": "true",
+            "planType": "pre-paid",
             "tripId": "tod89430d",
             "operatorType": "t1",
             "operatorName": "Uber",
@@ -38,6 +39,7 @@
         "eventType": "debit",
         "info": {
             "token": "69c594cfdeeaedd220",
+            "planType": "pre-paid",
             "amount": "20"
         }
     }
