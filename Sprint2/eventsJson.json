@@ -37,6 +37,38 @@
     }
 }
 
+//New event from T0 operators
+{
+    "Metro": {
+        "CheckIn": {
+            "Token": "t1",
+            "Station": "Odivelas",
+            "Timestamp": "2020-02-29 18:23:41.278"
+        }
+    }
+}
+
+{
+    "Metro": {
+        "CheckOut": {
+            "Token": "t1",
+            "Station": "Alameda",
+            "Timestamp": "2020-02-29 18:23:47.718"
+        }
+    }
+}
+
+//New event from T1 operators
+{
+    "Uber": {
+        "Usage": {
+            "Token": "t2",
+            "Price": "70.51.901",
+            "Timestamp": "2020-02-29 19:45:58.638"
+        }
+    }
+}
+
 //New event from T2 operators
 {
     "Gira": {
