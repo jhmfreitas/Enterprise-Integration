@@ -4,7 +4,7 @@
 {
     "event":{
         "eventType": "new-user",
-        "user": {
+        "info": {
             "id": "69c594cfdeeaedd220",
             "email": "user@gmail.com",
             "planType": "pre-paid", //or post-paid -> field used by payment service
@@ -49,12 +49,11 @@
 {
     "event": {
         "eventType": "t0-check-in",
-        "Metro": {
-            "CheckIn": {
-                "Token": "t1",
-                "Station": "Odivelas",
-                "Timestamp": "2020-02-29 18:23:41.278"
-            }
+        "operator": "Metro",
+        "info": {
+            "Token": "t1",
+            "Station": "Odivelas",
+            "Timestamp": "2020-02-29 18:23:41.278"
         }
     }
 }
@@ -62,12 +61,11 @@
 {
     "event": {
         "eventType": "t0-check-out",
-        "Metro": {
-            "CheckOut": {
-                "Token": "t1",
-                "Station": "Alameda",
-                "Timestamp": "2020-02-29 18:23:47.718"
-            }
+        "operator": "Metro",
+        "info": {
+            "Token": "t1",
+            "Station": "Alameda",
+            "Timestamp": "2020-02-29 18:23:47.718"
         }
     }
 }
@@ -76,12 +74,11 @@
 {
     "event": {
         "eventType": "t1",
-        "Uber": {
-            "Usage": {
-                "Token": "t2",
-                "Price": "70.51.901",
-                "Timestamp": "2020-02-29 19:45:58.638"
-            }
+        "operator": "Uber",
+        "info": {
+            "Token": "t2",
+            "Price": "70.51.901",
+            "Timestamp": "2020-02-29 19:45:58.638"
         }
     }
 }
@@ -90,13 +87,12 @@
 {
     "event": {
         "eventType": "t2",
-        "Gira": {
-            "Usage": {
-                "Token":"t1",
-                "Time":"3600", -> just used for user history
-                "Price": "12.60",
-                "Timestamp":"2020-02-29 20: 57: 10.294"
-            }
+        "operator": "Gira",
+        "info": {
+            "Token":"t1",
+            "Time":"3600", -> just used for user history
+            "Price": "12.60",
+            "Timestamp":"2020-02-29 20: 57: 10.294"
         }
     }
 }
