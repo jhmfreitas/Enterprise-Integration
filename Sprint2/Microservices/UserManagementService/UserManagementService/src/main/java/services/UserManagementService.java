@@ -260,10 +260,10 @@ public class UserManagementService implements RequestStreamHandler {
 		PreparedStatement s;
 		ResultSet resultSet;
 		try {
+			logger.log("produceTripCostEvent : send event !\n");
 			s = conn.prepareStatement("select * from userInfo where token = ?");
 			s.setString(1, token);
 			resultSet = s.executeQuery();
-			
 			while (resultSet.next()) {
 	            String planType = resultSet.getString("planType");
 	            String hasPass = String.valueOf(resultSet.getBoolean("hasPass"));
@@ -282,7 +282,10 @@ public class UserManagementService implements RequestStreamHandler {
 	    		"}";
 	    		
 	    		ProducerRecord<String, String> record = new ProducerRecord<>("TripCosts", "TripCostsKey", event);
+	    		
+	    		
 	    		producer.send(record);
+	    		logger.log("produceTripCostEvent : Sent -> " + event + "\n");
 	        }
 	        
 	        s.close();
