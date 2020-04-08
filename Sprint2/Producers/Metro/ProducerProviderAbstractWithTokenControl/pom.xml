@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.ie.producer.provider.kafka</groupId>
+  <artifactId>ProducerProvider2</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>ProducerProvider2</name>
+  
+  <properties> 
+  <maven.compiler.source>1.8</maven.compiler.source> 
+  <maven.compiler.target>1.8</maven.compiler.target>
+</properties>
+ 
+ <build>
+  <plugins>
+    <plugin>
+      <!-- Build an executable JAR -->
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-jar-plugin</artifactId>
+      <version>3.1.0</version>
+      <configuration>
+        <archive>
+          <manifest>
+            <addClasspath>true</addClasspath>
+            <classpathPrefix>lib/</classpathPrefix>
+            <mainClass>MaaSMessageProviderWithTokenControl</mainClass>
+          </manifest>
+        </archive>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+ 
+  <dependencies>
+<dependency>
+<groupId>org.apache.kafka</groupId> 
+<artifactId>kafka-clients</artifactId> 
+<version>2.1.0</version>
+</dependency>
+  	<dependency>
+  		<groupId>org.apache.maven.plugins</groupId>
+  		<artifactId>maven-shade-plugin</artifactId>
+  		<version>3.2.1</version>
+  	</dependency>
+  </dependencies>
+</project>
