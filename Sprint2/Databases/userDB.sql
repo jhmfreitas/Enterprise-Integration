@@ -31,7 +31,8 @@ CREATE TABLE history
     token VARCHAR(100) NOT NULL,
     operatorName VARCHAR(30) NOT NULL,
     time_stamp DATETIME NOT NULL,
-    CONSTRAINT pk_history PRIMARY KEY (tripID, time_stamp)
+    CONSTRAINT pk_history PRIMARY KEY (tripID, time_stamp),
+    CONSTRAINT fk_userInfo_history FOREIGN KEY (token) REFERENCES userInfo(token) on DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS T0_History;

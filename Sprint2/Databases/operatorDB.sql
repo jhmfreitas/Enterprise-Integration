@@ -11,7 +11,7 @@ CREATE TABLE operator(
 
 CREATE TABLE service(
     operatorId INT NOT NULL,
-    serviceId INT NOT NULL AUTO_INCREMENT,
+    serviceId VARCHAR(20) NOT NULL,
     name VARCHAR(100) NOT NULL,
     price DECIMAL(4, 2) NOT NULL,
     CONSTRAINT pk_service PRIMARY KEY (serviceId),
@@ -20,8 +20,8 @@ CREATE TABLE service(
 
 CREATE TABLE discount(
     operatorId INT NOT NULL,
-    serviceId INT NOT NULL,
-    discountId INT NOT NULL AUTO_INCREMENT,
+    serviceId VARCHAR(100) NOT NULL,
+    discountId VARCHAR(100) NOT NULL,
     value INT NOT NULL,
     CONSTRAINT pk_discount PRIMARY KEY (discountId),
     CONSTRAINT fk_service_discount FOREIGN KEY (operatorId,serviceId) REFERENCES service(operatorId,serviceId) on DELETE CASCADE

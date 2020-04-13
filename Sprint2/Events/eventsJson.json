@@ -96,3 +96,44 @@
         }
     }
 }
+
+//New Operator event
+{
+    "event": {
+        "eventType": "new-operator",
+        "operator": "Carris",
+        "info": {
+            "operatorType": "t1"
+        }
+    }
+}
+
+//New Service Event
+{
+    "event": {
+        "eventType": "new-service",
+        "operator": "Gira",
+        "info": {
+            "Name": "Serviço Diário",
+            "ServiceId": "Gira-1",
+            "Price": "2"
+        }
+    }
+}
+
+//New Discount Event
+{
+    "event": {
+        "eventType": "new-discount",
+        "operator": "Gira",
+        "info": {
+            "Name": "Dia do Ambiente",
+            "ServiceId": "Gira-1",
+            "DiscountId": "Gira-1-12",
+            "Value": "0.20",
+            "BeginAt": "2020-06-05 00:00:0.000",
+            "EndAt": "2020-06-05 23:59:59.999",
+            "AppliesOnlyToPass": "false"
+        }
+    }
+}
