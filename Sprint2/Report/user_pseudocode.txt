@@ -1,0 +1,48 @@
+function handleRequest:
+    startService <- beginEvent
+
+    bd_connect <- connectToDatabase
+
+    consumer <- prepareConsumer
+
+    while(true):
+        consumerRecords <- consumer.poll()
+        for each record in consumerRecords do
+
+            message <- record.value
+
+            extractedEvent <- parse(message)
+            
+            if extractedEvent != null and bd_connect == ok do
+                processEvent(extractedEvent)
+            else
+                throw exception
+            endif
+        endfor
+
+        consumer commit offset
+    endwhile
+end
+
+function processEvent:
+    eventType <- extractedEvent.type
+    eventInfo <- extractedEvent.info
+
+    switch(eventType):
+        case "t0-check-in":
+            insertT0InfoInDB <- eventInfo
+            break
+        case "t0-check-out":
+            insertT0InfoInDB <- eventInfo
+            break
+        case "t1":
+            insertT1InfoInDB <- eventInfo
+            break
+        case "t2":
+            insertT2InfoInDB <- eventInfo
+            break
+        case "new-user":
+            insertUserInDB <- eventInfo
+            break
+    endswitch
+end

@@ -35,7 +35,7 @@ public class UserManagementService implements RequestStreamHandler {
 	public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) {
 		LambdaLogger logger = context.getLogger();
 		String AWSDBIP = "userdb.cfergfluhibr.us-east-1.rds.amazonaws.com";
-		String AWSIP = "54.81.224.17";
+		String AWSIP = "3.81.102.111";
 		String groupId = "testeAWS2";
 		try {
 			//Get start action
@@ -78,8 +78,7 @@ public class UserManagementService implements RequestStreamHandler {
 			//Start consumer events
 			try {
 				logger.log("handleRequest: Begin!!\n");
-				int x = 0;
-				while (x < Integer.MAX_VALUE/2) {
+				while (true) {
 					ConsumerRecords<String, String> records = consumer.poll(100);
 					logger.log("handleRequest: records = " + records.count() + "\n");
 					for (ConsumerRecord<String, String> record : records) {
@@ -93,7 +92,7 @@ public class UserManagementService implements RequestStreamHandler {
 						JSONObject extractedEvent = (JSONObject) ((JSONObject) parser.parse(message)).get("event");
 						
 						if(extractedEvent != null && bd_ok) {
-							parseEvent(extractedEvent, topic, logger, conn, producer);	
+							processEvent(extractedEvent, topic, logger, conn, producer);	
 						}
 						else {
 							logger.log("Error : extractedEvent is " + extractedEvent + " and BDConnnection=" + bd_ok + "\n");
@@ -101,7 +100,6 @@ public class UserManagementService implements RequestStreamHandler {
 					}
 					// Commit Current Offset
 					consumer.commitSync();
-					x++;
 				}
 			}catch (CommitFailedException e) {
 				logger.log("Error : Commit Failed -> " + e.toString()+ "\n");
@@ -118,7 +116,7 @@ public class UserManagementService implements RequestStreamHandler {
 		}
 	}
 	
-	public void parseEvent(JSONObject extractedEvent, String topic, LambdaLogger logger, Connection conn, KafkaProducer<String, String> producer) {
+	public void processEvent(JSONObject extractedEvent, String topic, LambdaLogger logger, Connection conn, KafkaProducer<String, String> producer) {
 
 		try {
 			String eventType = (String) extractedEvent.get("eventType");
