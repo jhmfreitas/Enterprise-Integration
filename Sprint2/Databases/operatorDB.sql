@@ -5,24 +5,29 @@ USE operatorManagementDB;
 
 CREATE TABLE operator(
     operatorId INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
+    operatorName VARCHAR(100) NOT NULL UNIQUE,
+    operatorType VARCHAR(2) NOT NULL,
     CONSTRAINT pk_operator PRIMARY KEY (operatorId)
 );
 
 CREATE TABLE service(
-    operatorId INT NOT NULL,
-    serviceId VARCHAR(20) NOT NULL,
-    name VARCHAR(100) NOT NULL,
+    operatorName VARCHAR(100) NOT NULL UNIQUE,
+    serviceId VARCHAR(20) NOT NULL UNIQUE,
+    serviceName VARCHAR(100) NOT NULL UNIQUE,
     price DECIMAL(4, 2) NOT NULL,
     CONSTRAINT pk_service PRIMARY KEY (serviceId),
-    CONSTRAINT fk_operator_service FOREIGN KEY (operatorId) REFERENCES operator(operatorId) on DELETE CASCADE
+    CONSTRAINT fk_operator_service FOREIGN KEY (operatorName) REFERENCES operator(operatorName) on DELETE CASCADE
 );
 
 CREATE TABLE discount(
-    operatorId INT NOT NULL,
-    serviceId VARCHAR(100) NOT NULL,
-    discountId VARCHAR(100) NOT NULL,
+    operatorName VARCHAR(100) NOT NULL UNIQUE,
+    serviceId VARCHAR(100) NOT NULL UNIQUE,
+    discountId VARCHAR(100) NOT NULL UNIQUE,
+    discountName VARCHAR(100) NOT NULL UNIQUE,
     value INT NOT NULL,
+    beginAt DATETIME NOT NULL,
+    endAt DATETIME NOT NULL,
+    appliesOnlyToPass BOOLEAN NOT NULL,
     CONSTRAINT pk_discount PRIMARY KEY (discountId),
-    CONSTRAINT fk_service_discount FOREIGN KEY (operatorId,serviceId) REFERENCES service(operatorId,serviceId) on DELETE CASCADE
+    CONSTRAINT fk_service_discount FOREIGN KEY (operatorName,serviceId) REFERENCES service(operatorName,serviceId) on DELETE CASCADE
 );

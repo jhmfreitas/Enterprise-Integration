@@ -51,9 +51,9 @@
         "eventType": "t0-check-in",
         "operator": "Metro",
         "info": {
-            "Token": "t1",
-            "Station": "Odivelas",
-            "Timestamp": "2020-02-29 18:23:41.278"
+            "token": "t1",
+            "station": "Odivelas",
+            "timestamp": "2020-02-29 18:23:41.278"
         }
     }
 }
@@ -63,9 +63,9 @@
         "eventType": "t0-check-out",
         "operator": "Metro",
         "info": {
-            "Token": "t1",
-            "Station": "Alameda",
-            "Timestamp": "2020-02-29 18:23:47.718"
+            "token": "t1",
+            "station": "Alameda",
+            "timestamp": "2020-02-29 18:23:47.718"
         }
     }
 }
@@ -76,9 +76,9 @@
         "eventType": "t1",
         "operator": "Uber",
         "info": {
-            "Token": "t2",
-            "Price": "70.51.901",
-            "Timestamp": "2020-02-29 19:45:58.638"
+            "token": "t2",
+            "price": "70.51.901",
+            "timestamp": "2020-02-29 19:45:58.638"
         }
     }
 }
@@ -89,10 +89,10 @@
         "eventType": "t2",
         "operator": "Gira",
         "info": {
-            "Token":"t1",
-            "Time":"3600", -> just used for user history
-            "Price": "12.60",
-            "Timestamp":"2020-02-29 20: 57: 10.294"
+            "token":"t1",
+            "time":"3600", -> just used for user history
+            "price": "12.60",
+            "timestamp":"2020-02-29 20: 57: 10.294"
         }
     }
 }
@@ -114,9 +114,9 @@
         "eventType": "new-service",
         "operator": "Gira",
         "info": {
-            "Name": "Serviço Diário",
-            "ServiceId": "Gira-1",
-            "Price": "2"
+            "name": "Serviço Diário",
+            "serviceId": "Gira-1",
+            "price": "2"
         }
     }
 }
@@ -127,13 +127,13 @@
         "eventType": "new-discount",
         "operator": "Gira",
         "info": {
-            "Name": "Dia do Ambiente",
-            "ServiceId": "Gira-1",
-            "DiscountId": "Gira-1-12",
-            "Value": "0.20",
-            "BeginAt": "2020-06-05 00:00:0.000",
-            "EndAt": "2020-06-05 23:59:59.999",
-            "AppliesOnlyToPass": "false"
+            "name": "Dia do Ambiente",
+            "serviceId": "Gira-1",
+            "discountId": "Gira-1-12",
+            "value": "0.20",
+            "beginAt": "2020-06-05 00:00:0.000",
+            "endAt": "2020-06-05 23:59:59.999",
+            "appliesOnlyToPass": "false"
         }
     }
 }
