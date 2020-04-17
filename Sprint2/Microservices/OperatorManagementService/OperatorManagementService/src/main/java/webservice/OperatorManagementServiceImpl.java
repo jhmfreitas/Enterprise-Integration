@@ -168,7 +168,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 				case "trip-cost":
 					//TODO: No caso de receber um evento deste nós não inserimos nada da BD! Calculamos o desconto e produzimos um debit event
 					//insertTripCost(conn, infojson, producer);
-					processTripCostEvent(infojson, producer);
+					processTripCostEvent(conn, infojson, producer);
 					break;
 				case "new-operator":
 					insertOperator(conn, operator, infojson, producer);
@@ -212,14 +212,80 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		s.close();
 	}*/
 
-	private void processTripCostEvent(JSONObject infojson, KafkaProducer<String, String> producer) {
-		// TODO fazer get na info a tudo o que for preciso, eu trato do getDiscount()
+	private void processTripCostEvent(Connection conn, JSONObject infojson, KafkaProducer<String, String> producer) {
+		// TODO fazer get na info a tudo o que for preciso
+		boolean hasPass = Boolean.parseBoolean((String) infojson.get("hasPass"));
+		float baseCost = Float.valueOf((String) infojson.get("baseCost"));
+		String timeStamp = (String) infojson.get("timeStamp");
+		String serviceId = (String) infojson.get("serviceId");
 		
-		float discount = getDiscount();
+		
+		float discount = getDiscount(conn, hasPass, timeStamp, serviceId);
 		float debitAmount = baseCost * discount;
 		
 		produceDebitEvent(producer, token, planType, debitAmount);
 	}
+	
+	private float getDiscount(Connection conn, boolean hasPass, String timestamp, String serviceId) {
+		// TODO Auto-generated method stub
+		if (hasPass == false) {
+			getBestDiscountWithPass(conn, timestamp, serviceId);
+		}
+		else {
+			getBestDiscountWithoutPass(conn, timestamp, serviceId);
+		}
+		return 0;
+	}
+	
+	private void getBestDiscountWithoutPass(Connection conn, String timestamp, String serviceId) {
+		PreparedStatement s;
+		ResultSet resultSet;
+		try {
+			s = conn.prepareStatement("select * from discount where nonPassOnly = ? and beginAt >= ? and endAt <= ? and serviceId = ?");
+			s.setBoolean(1, false);
+			s.setTimestamp(2, java.sql.Timestamp.valueOf(timestamp));
+			s.setTimestamp(3, java.sql.Timestamp.valueOf(timestamp));
+			s.setString(4, serviceId);
+			resultSet = s.executeQuery();
+			float discountValue = 0;
+			while (resultSet.next()) {
+				float value = resultSet.getInt("value")/100;
+				if(value > discountValue) {
+					discountValue = value;
+				}
+		    }
+		    
+		    s.close();
+		    resultSet.close();
+		} catch (SQLException e) {
+			System.out.println("Error : Looking for discount ->" + e.toString() + "\n");
+		}
+	}
+	private void getBestDiscountWithPass(Connection conn, String timestamp, String serviceId) {
+		PreparedStatement s;
+		ResultSet resultSet;
+		try {
+			s = conn.prepareStatement("select * from discount where passOnly = ? and beginAt >= ? and endAt <= ? and serviceId = ?");
+			s.setBoolean(1, false);
+			s.setTimestamp(2, java.sql.Timestamp.valueOf(timestamp));
+			s.setTimestamp(3, java.sql.Timestamp.valueOf(timestamp));
+			s.setString(4, serviceId);
+			resultSet = s.executeQuery();
+			float discountValue = 0;
+			while (resultSet.next()) {
+				float value = resultSet.getInt("value")/100;
+				if(value > discountValue) {
+					discountValue = value;
+				}
+		    }
+		    
+		    s.close();
+		    resultSet.close();
+		} catch (SQLException e) {
+			System.out.println("Error : Looking for discount ->" + e.toString() + "\n");
+		}
+	}
+	
 	private void insertOperator(Connection conn, String operator, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException {
 		String operatorType = (String) infojson.get("operatorType");
 		

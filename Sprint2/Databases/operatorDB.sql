@@ -27,7 +27,8 @@ CREATE TABLE discount(
     value INT NOT NULL,
     beginAt DATETIME NOT NULL,
     endAt DATETIME NOT NULL,
-    appliesOnlyToPass BOOLEAN NOT NULL,
+    passOnly BOOLEAN NOT NULL,
+    nonPassOnly BOOLEAN NOT NULL,
     CONSTRAINT pk_discount PRIMARY KEY (discountId),
     CONSTRAINT fk_service_discount FOREIGN KEY (operatorName,serviceId) REFERENCES service(operatorName,serviceId) on DELETE CASCADE
 );
