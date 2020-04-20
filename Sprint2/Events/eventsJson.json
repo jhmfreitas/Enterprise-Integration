@@ -10,8 +10,7 @@
             "planType": "pre-paid", //or post-paid -> field used by payment service
             "firstName": "Paulo",
             "lastName": "Neves",
-            "balance": "500",
-            "hasPass": "true"
+            "balance": "500"
         }
     }
 }
@@ -21,9 +20,8 @@
     "event": {
         "eventType": "trip-cost",
         "info": {
-            "baseCost": "23",
+            "cost": "23",
             "token": "69c594cfdeeaedd220",
-            "hasPass": "true",
             "planType": "pre-paid",
             "tripId": "tod89430d",
             "operatorType": "t1",
@@ -77,7 +75,7 @@
         "operator": "Uber",
         "info": {
             "token": "t2",
-            "price": "70.51.901",
+            "price": "20.63",
             "timestamp": "2020-02-29 19:45:58.638"
         }
     }
@@ -103,20 +101,8 @@
         "eventType": "new-operator",
         "operator": "Carris",
         "info": {
-            "operatorType": "t1"
-        }
-    }
-}
-
-//New Service Event
-{
-    "event": {
-        "eventType": "new-service",
-        "operator": "Gira",
-        "info": {
-            "name": "Serviço Diário",
-            "serviceId": "Gira-1",
-            "price": "2"
+            "operatorType": "t0",
+            "baseCost": "2.25" -> "null" -> se for de tipo 1 ou 2
         }
     }
 }
@@ -125,15 +111,14 @@
 {
     "event": {
         "eventType": "new-discount",
-        "operator": "Gira",
+        "operator": ["Gira"], -> can have more than one
         "info": {
             "name": "Dia do Ambiente",
-            "serviceId": "Gira-1",
             "discountId": "Gira-1-12",
-            "value": "0.20",
+            "value": "20",
             "beginAt": "2020-06-05 00:00:0.000",
             "endAt": "2020-06-05 23:59:59.999",
-            "appliesOnlyToPass": "false"
+            "appliesToPlanType": ["generalPass","pre-paid"]
         }
     }
 }

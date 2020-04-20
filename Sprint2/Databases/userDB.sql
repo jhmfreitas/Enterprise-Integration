@@ -7,11 +7,10 @@ DROP TABLE IF EXISTS userInfo;
 CREATE TABLE userInfo
 (
     token VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
+    email VARCHAR(50) NOT NULL,
     firstName VARCHAR(20) NOT NULL,
     lastName VARCHAR(20) NOT NULL,
     planType VARCHAR(20) NOT NULL,
-    hasPass BOOLEAN NOT NULL,
     CONSTRAINT pk_userInfo PRIMARY KEY (token)
 );
 

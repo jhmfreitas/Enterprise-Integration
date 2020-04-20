@@ -4,24 +4,12 @@ CREATE DATABASE IF NOT EXISTS operatorManagementDB;
 USE operatorManagementDB;
 
 CREATE TABLE operator(
-    operatorId INT NOT NULL AUTO_INCREMENT,
-    operatorName VARCHAR(100) NOT NULL UNIQUE,
+    operatorName VARCHAR(100) NOT NULL,
     operatorType VARCHAR(2) NOT NULL,
-    CONSTRAINT pk_operator PRIMARY KEY (operatorId)
-);
-
-CREATE TABLE service(
-    operatorName VARCHAR(100) NOT NULL UNIQUE,
-    serviceId VARCHAR(20) NOT NULL UNIQUE,
-    serviceName VARCHAR(100) NOT NULL UNIQUE,
-    price DECIMAL(4, 2) NOT NULL,
-    CONSTRAINT pk_service PRIMARY KEY (serviceId),
-    CONSTRAINT fk_operator_service FOREIGN KEY (operatorName) REFERENCES operator(operatorName) on DELETE CASCADE
+    CONSTRAINT pk_operator PRIMARY KEY (operatorName)
 );
 
 CREATE TABLE discount(
-    operatorName VARCHAR(100) NOT NULL UNIQUE,
-    serviceId VARCHAR(100) NOT NULL UNIQUE,
     discountId VARCHAR(100) NOT NULL UNIQUE,
     discountName VARCHAR(100) NOT NULL UNIQUE,
     value INT NOT NULL,
@@ -29,6 +17,26 @@ CREATE TABLE discount(
     endAt DATETIME NOT NULL,
     passOnly BOOLEAN NOT NULL,
     nonPassOnly BOOLEAN NOT NULL,
-    CONSTRAINT pk_discount PRIMARY KEY (discountId),
-    CONSTRAINT fk_service_discount FOREIGN KEY (operatorName,serviceId) REFERENCES service(operatorName,serviceId) on DELETE CASCADE
+    CONSTRAINT pk_discount PRIMARY KEY (discountId)
+);
+
+CREATE TABLE planType(
+    plan VARCHAR(20) NOT NULL,
+    CONSTRAINT pk_planType PRIMARY KEY (plan)
+);
+
+CREATE TABLE discount_planType
+(
+    discountId VARCHAR(100) NOT NULL,
+    plan VARCHAR(20) NOT NULL UNIQUE,
+    CONSTRAINT pk_discount_planType PRIMARY KEY (discountId,plan),
+    CONSTRAINT fk_planType FOREIGN KEY (plan) REFERENCES planType(plan) on DELETE CASCADE
+);
+
+CREATE TABLE operator_discount(
+    operatorName VARCHAR(100) NOT NULL,
+    discountId VARCHAR(100) NOT NULL,
+    CONSTRAINT pk_operator_discount PRIMARY KEY (operatorName,discountId),
+    CONSTRAINT fk_operator FOREIGN KEY (operatorName) REFERENCES operator(operatorName) on DELETE CASCADE,
+    CONSTRAINT fk_discount FOREIGN KEY (discountId) REFERENCES discount(discountId) on DELETE CASCADE
 );

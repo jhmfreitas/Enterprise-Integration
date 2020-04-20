@@ -86,7 +86,6 @@ public class UserManagementService implements RequestStreamHandler {
 						
 						String message = record.value();
 						String topic = record.topic();
-						//long offset = record.offset();
 						
 						JSONParser parser = new JSONParser();
 						JSONObject extractedEvent = (JSONObject) ((JSONObject) parser.parse(message)).get("event");
@@ -122,6 +121,7 @@ public class UserManagementService implements RequestStreamHandler {
 			String eventType = (String) extractedEvent.get("eventType");
 			String operator = (String) extractedEvent.get("operator");
 			if(operator != null) {
+				//Validation needed because of new-user events
 				logger.log("parseEvent(operator):" + operator + "\n");
 			}
 			JSONObject infojson = (JSONObject) extractedEvent.get("info");
@@ -162,15 +162,13 @@ public class UserManagementService implements RequestStreamHandler {
 		String firstName = (String) infojson.get("firstName");
 		String lastName = (String) infojson.get("lastName");
 		String balance = (String) infojson.get("balance");
-		boolean hasPass = Boolean.parseBoolean((String) infojson.get("hasPass"));
 		
-		PreparedStatement s = conn.prepareStatement("insert into userInfo values(?,?,?,?,?,?)");
+		PreparedStatement s = conn.prepareStatement("insert into userInfo values(?,?,?,?,?)");
 		s.setString(1, token);
 		s.setString(2, email);
 		s.setString(3, firstName);
 		s.setString(4, lastName);
 		s.setString(5, planType);
-		s.setBoolean(6, hasPass);
 		s.executeUpdate();
 		s.close();
 		
@@ -236,7 +234,7 @@ public class UserManagementService implements RequestStreamHandler {
 			s.executeUpdate();
 			s.close();
 			
-			produceTripCostEvent(conn, operator, producer, "", "t0", token, timestamp, tripId, logger);
+			produceTripCostEvent(conn, operator, producer, "null", "t0", token, timestamp, tripId, logger);
 		}
 		else if(eventType.equals("t0-check-out")) {
 			PreparedStatement s = conn.prepareStatement("insert into T0_History values(?,?,?,?)");
