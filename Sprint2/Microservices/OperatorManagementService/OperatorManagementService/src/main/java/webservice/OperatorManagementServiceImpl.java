@@ -166,16 +166,11 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			
 			switch(eventType) {
 				case "trip-cost":
-					//TODO: No caso de receber um evento deste nós não inserimos nada da BD! Calculamos o desconto e produzimos um debit event
-					//insertTripCost(conn, infojson, producer);
 					processTripCostEvent(conn, infojson, producer);
 					break;
 				case "new-operator":
 					insertOperator(conn, operator, infojson, producer);
 					break;
-				case "new-service":
-					insertService(conn, operator, infojson, producer);
-					break; 
 				case "new-discount":
 					insertDiscount(conn, operator, infojson, producer);
 					break;
@@ -188,41 +183,21 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 
 	}
 	
-	/*
-	private void insertTripCost(Connection conn, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException{
-		String baseCost = (String) infojson.get("baseCost");
-		String token = (String) infojson.get("id");
-		boolean hasPass = Boolean.parseBoolean((String) infojson.get("hasPass"));
-		String planType = (String) infojson.get("planType");
-		String tripId = (String) infojson.get("tripId");
-		String operatorType = (String) infojson.get("operatorType");
-		String operatorName = (String) infojson.get("operatorName");
-		String timeStamp = (String) infojson.get("timeStamp");
-		
-		PreparedStatement s = conn.prepareStatement("insert into tripCost values(?,?,?,?,?,?,?,?)");
-		s.setString(1, baseCost);
-		s.setString(2, token);
-		s.setBoolean(3, hasPass);
-		s.setString(4, planType);
-		s.setString(5, tripId);
-		s.setString(6, operatorType);
-		s.setString(7, operatorName);
-		s.setString(8, timeStamp);
-		s.executeUpdate();
-		s.close();
-	}*/
 
 	private void processTripCostEvent(Connection conn, JSONObject infojson, KafkaProducer<String, String> producer) {
-		// TODO fazer get na info a tudo o que for preciso
+		
 		boolean hasPass = Boolean.parseBoolean((String) infojson.get("hasPass"));
 		float baseCost = Float.valueOf((String) infojson.get("baseCost"));
 		String timeStamp = (String) infojson.get("timeStamp");
 		String serviceId = (String) infojson.get("serviceId");
-		
+		String planType = (String) infojson.get("planType");
+		String token = (String) infojson.get("token");
+				
+		insertPlanType(conn, planType);
 		
 		float discount = getDiscount(conn, hasPass, timeStamp, serviceId);
 		float debitAmount = baseCost * discount;
-		
+			
 		produceDebitEvent(producer, token, planType, debitAmount);
 	}
 	
@@ -289,57 +264,64 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	private void insertOperator(Connection conn, String operator, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException {
 		String operatorType = (String) infojson.get("operatorType");
 		
-		//TODO: adicionar topico para o operator no kafka -> usar addTopic()
+		addTopic(operator, operatorType);
 		
-		//TODO: ver campos a adicionar na tabela e adicionar aqui (ver o script SQL (operatorDB))
-		PreparedStatement s = conn.prepareStatement("insert into operator values(?)");
-		s.setString(1, operatorType);
+		PreparedStatement s = conn.prepareStatement("insert into operator values(?,?)");
+		s.setString(1, operator);
+		s.setString(2, operatorType);
 		s.executeUpdate();
 		s.close();
 		
-	}
-	
-	private void insertService(Connection conn, String operator, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException {
-		String name = (String) infojson.get("name");
-		String serviceId = (String) infojson.get("serviceId");
-		String price = (String) infojson.get("price");
-		
-		//TODO: Falta inserir o nome do operador (ver o script SQL (operatorDB))
-		PreparedStatement s = conn.prepareStatement("insert into service values(?,?,?)");
-		s.setString(1, name);
-		s.setString(2, serviceId);
-		s.setString(3, price);
-		s.executeUpdate();
-		s.close();
 	}
 	
 	private void insertDiscount(Connection conn, String operator, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException {
-		String name = (String) infojson.get("name");
-		String serviceId = (String) infojson.get("serviceId");
 		String discountId = (String) infojson.get("discountId");
+		String discountName = (String) infojson.get("discountName");
 		String value = (String) infojson.get("value");
 		String beginAt = (String) infojson.get("beginAt");
 		String endAt = (String) infojson.get("endAt");
-		boolean appliesOnlyToPass = Boolean.parseBoolean((String) infojson.get("appliesOnlyToPass"));
+		boolean passOnly = Boolean.parseBoolean((String) infojson.get("passOnly"));
+		boolean nonPassOnly = Boolean.parseBoolean((String) infojson.get("nonPassOnly"));
 		
-		//TODO: ver campos a adicionar na tabela e adicionar aqui (ver o script SQL (operatorDB))
 		PreparedStatement s = conn.prepareStatement("insert into discount values(?,?,?,?,?,?,?)");
+		s.setString(1, discountId);
+		s.setString(2, discountName);
+		s.setInt(3, Integer.parseInt(value));
+		s.setTimestamp(4, java.sql.Timestamp.valueOf(beginAt));
+		s.setTimestamp(5, java.sql.Timestamp.valueOf(endAt));
+		s.setBoolean(6, passOnly);
+		s.setBoolean(7, nonPassOnly);
+		s.executeUpdate();
+		s.close();
+		
+		s = conn.prepareStatement("insert into operator_discount values(?,?)");
 		s.setString(1, operator);
-		s.setString(2, serviceId);
-		s.setString(3, discountId);
-		s.setString(4, name);
-		s.setString(5, value);
-		s.setString(6, beginAt);//TODO: Timestamps não é assim que se põe na BD(ver o meu código)
-		s.setString(7, endAt);
-		s.setBoolean(8, appliesOnlyToPass);
+		s.setString(2, discountId);
+		s.executeUpdate();
+		s.close();
+		
+		s = conn.prepareStatement("insert into discount_planType values(?,?)");
+		s.setString(1, discountId);
 		s.executeUpdate();
 		s.close();
 	}
-       
-	private void produceDebitEvent(KafkaProducer<String, String> producer, String token,String planType, String amount) {
+	
+	private void insertPlanType(Connection conn, String plan) throws SQLException {
+		PreparedStatement s = conn.prepareStatement("insert into planType values(?)");
+		s.setString(1, plan);
+		s.executeUpdate();
+		s.close();
 		
-		//TODO: Não alteraste o evento para enviar
-        String event = "{\"event\":{\"eventType\":\"trip-cost\", \"info\":{ " +
+		s = conn.prepareStatement("insert into discount_planType values(?,?)");
+		s.setString(2, plan);
+		s.executeUpdate();
+		s.close();
+	}
+	
+	private void produceDebitEvent(KafkaProducer<String, String> producer, String token, String planType, String amount) {
+		
+		
+        String event = "{\"event\":{\"eventType\":\"debit\", \"info\":{ " +
 				"\"token\": \" " + token + "\", "+
 				"\"planType\": \"" + planType +"\", "+
 				"\"amount\": \"" + amount + "\" "+
