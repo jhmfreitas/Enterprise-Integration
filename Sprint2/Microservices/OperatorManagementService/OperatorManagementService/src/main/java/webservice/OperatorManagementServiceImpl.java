@@ -11,35 +11,30 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
 import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 //Service Implementation
 @WebService(endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-35-173-138-16.compute-1.amazonaws.com";
-	static String AWSDBIP = "userdb.cfergfluhibr.us-east-1.rds.amazonaws.com";
+	static String AWSIP = "ec2-18-206-239-50.compute-1.amazonaws.com";
+	static String AWSDBIP = "operatordb.cfergfluhibr.us-east-1.rds.amazonaws.com";
 	public OperatorManagementServiceImpl() {
 	
 	}
@@ -155,10 +150,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	private void processEvent(JSONObject extractedEvent, String topic, Connection conn, KafkaProducer<String, String> producer) {
 		try {
 			String eventType = (String) extractedEvent.get("eventType");
-			String operator = (String) extractedEvent.get("operator");
-			if(operator != null) {
-				System.out.println("processEvent(operator):" + operator + "\n");
-			}
+			String operator;
 			
 			JSONObject infojson = (JSONObject) extractedEvent.get("info");
 			System.out.println("processEvent(eventType):" + eventType + "\n");
@@ -166,99 +158,77 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			
 			switch(eventType) {
 				case "trip-cost":
+					operator = (String) extractedEvent.get("operator");
+					System.out.println("processEvent(operator):" + operator + "\n");
 					processTripCostEvent(conn, infojson, producer);
 					break;
 				case "new-operator":
+					operator = (String) extractedEvent.get("operator");
+					System.out.println("processEvent(operator):" + operator + "\n");
 					insertOperator(conn, operator, infojson, producer);
 					break;
 				case "new-discount":
-					insertDiscount(conn, operator, infojson, producer);
+					JSONArray operators = (JSONArray) extractedEvent.get("operator");
+					System.out.println("processEvent(operator):" + operators + "\n");
+					insertDiscount(conn, operators, infojson, producer);
 					break;
 				default:
 					System.out.println("parseEvent(eventType): Error : There is not such type of event:" + eventType + "\n");
 			}	
 		}catch (SQLException e) {
-			System.out.println("parseMessage:" + (String) e.toString() + "\n");
+			System.out.println("processEvent:" + (String) e.toString() + "\n");
 		}
 
 	}
 	
 
 	private void processTripCostEvent(Connection conn, JSONObject infojson, KafkaProducer<String, String> producer) {
-		
-		boolean hasPass = Boolean.parseBoolean((String) infojson.get("hasPass"));
 		float baseCost = Float.valueOf((String) infojson.get("baseCost"));
 		String timeStamp = (String) infojson.get("timeStamp");
-		String serviceId = (String) infojson.get("serviceId");
 		String planType = (String) infojson.get("planType");
 		String token = (String) infojson.get("token");
-				
-		insertPlanType(conn, planType);
+		String operatorName = (String) infojson.get("operatorName");
 		
-		float discount = getDiscount(conn, hasPass, timeStamp, serviceId);
+		float discount = getDiscount(conn, planType, timeStamp, operatorName);
 		float debitAmount = baseCost * discount;
 			
 		produceDebitEvent(producer, token, planType, debitAmount);
 	}
 	
-	private float getDiscount(Connection conn, boolean hasPass, String timestamp, String serviceId) {
-		// TODO Auto-generated method stub
-		if (hasPass == false) {
-			getBestDiscountWithPass(conn, timestamp, serviceId);
-		}
-		else {
-			getBestDiscountWithoutPass(conn, timestamp, serviceId);
-		}
-		return 0;
-	}
-	
-	private void getBestDiscountWithoutPass(Connection conn, String timestamp, String serviceId) {
+	private float getDiscount(Connection conn, String planType, String timestamp, String operatorName) {
+		
 		PreparedStatement s;
 		ResultSet resultSet;
 		try {
-			s = conn.prepareStatement("select * from discount where nonPassOnly = ? and beginAt >= ? and endAt <= ? and serviceId = ?");
-			s.setBoolean(1, false);
+			s = conn.prepareStatement("select value from discount inner join operator_discount on discount.discountId = operator_discount.discountId inner join discount_planType on discount.discountId = discount_planType.discountId where beginAt >= ? and endAt <= ? and operatorName = ? and plan=?");
+			s.setTimestamp(1, java.sql.Timestamp.valueOf(timestamp));
 			s.setTimestamp(2, java.sql.Timestamp.valueOf(timestamp));
-			s.setTimestamp(3, java.sql.Timestamp.valueOf(timestamp));
-			s.setString(4, serviceId);
+			s.setString(3, operatorName);
+			s.setString(4, planType);
 			resultSet = s.executeQuery();
 			float discountValue = 0;
 			while (resultSet.next()) {
 				float value = resultSet.getInt("value")/100;
 				if(value > discountValue) {
+					System.out.println("getDiscount : Discount found = " + value + "\n");
 					discountValue = value;
 				}
 		    }
 		    
 		    s.close();
 		    resultSet.close();
-		} catch (SQLException e) {
-			System.out.println("Error : Looking for discount ->" + e.toString() + "\n");
-		}
-	}
-	private void getBestDiscountWithPass(Connection conn, String timestamp, String serviceId) {
-		PreparedStatement s;
-		ResultSet resultSet;
-		try {
-			s = conn.prepareStatement("select * from discount where passOnly = ? and beginAt >= ? and endAt <= ? and serviceId = ?");
-			s.setBoolean(1, false);
-			s.setTimestamp(2, java.sql.Timestamp.valueOf(timestamp));
-			s.setTimestamp(3, java.sql.Timestamp.valueOf(timestamp));
-			s.setString(4, serviceId);
-			resultSet = s.executeQuery();
-			float discountValue = 0;
-			while (resultSet.next()) {
-				float value = resultSet.getInt("value")/100;
-				if(value > discountValue) {
-					discountValue = value;
-				}
+		    if(discountValue != 0){
+		    	System.out.println("getDiscount : Best Discount found = " + discountValue + "\n");
+				return discountValue;
 		    }
-		    
-		    s.close();
-		    resultSet.close();
+		    //No applicable discount
+		    return 1;
 		} catch (SQLException e) {
 			System.out.println("Error : Looking for discount ->" + e.toString() + "\n");
 		}
+		
+		//Should not happen
+		return 1;
 	}
 	
 	private void insertOperator(Connection conn, String operator, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException {
@@ -274,14 +244,13 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		
 	}
 	
-	private void insertDiscount(Connection conn, String operator, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException {
+	private void insertDiscount(Connection conn, JSONArray operators, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException {
 		String discountId = (String) infojson.get("discountId");
 		String discountName = (String) infojson.get("discountName");
 		String value = (String) infojson.get("value");
 		String beginAt = (String) infojson.get("beginAt");
 		String endAt = (String) infojson.get("endAt");
-		boolean passOnly = Boolean.parseBoolean((String) infojson.get("passOnly"));
-		boolean nonPassOnly = Boolean.parseBoolean((String) infojson.get("nonPassOnly"));
+		JSONArray planTypes = (JSONArray) infojson.get("appliesToPlanType");
 		
 		PreparedStatement s = conn.prepareStatement("insert into discount values(?,?,?,?,?,?,?)");
 		s.setString(1, discountId);
@@ -289,38 +258,36 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		s.setInt(3, Integer.parseInt(value));
 		s.setTimestamp(4, java.sql.Timestamp.valueOf(beginAt));
 		s.setTimestamp(5, java.sql.Timestamp.valueOf(endAt));
-		s.setBoolean(6, passOnly);
-		s.setBoolean(7, nonPassOnly);
 		s.executeUpdate();
 		s.close();
 		
-		s = conn.prepareStatement("insert into operator_discount values(?,?)");
-		s.setString(1, operator);
-		s.setString(2, discountId);
-		s.executeUpdate();
-		s.close();
 		
-		s = conn.prepareStatement("insert into discount_planType values(?,?)");
-		s.setString(1, discountId);
-		s.executeUpdate();
-		s.close();
+        Iterator<String> operatorsIterator = operators.iterator();
+        while (operatorsIterator.hasNext()) {
+        	String operator = operatorsIterator.next();
+        	System.out.println("Operator:" + operator);
+            
+            s = conn.prepareStatement("insert into operator_discount values(?,?)");
+    		s.setString(1, operator);
+    		s.setString(2, discountId);
+    		s.executeUpdate();
+    		s.close();
+    		
+    		for (int i = 0; i < planTypes.size(); i++) {
+    			String plan = (String) planTypes.get(i);
+	          	System.out.println("PlanType:" + plan);
+	              
+	          	s = conn.prepareStatement("insert into discount_planType values(?,?)");
+	      		s.setString(1, discountId);
+	      		s.setString(2, plan);
+	      		s.executeUpdate();
+	      		s.close();
+			}
+        }
+		
 	}
 	
-	private void insertPlanType(Connection conn, String plan) throws SQLException {
-		PreparedStatement s = conn.prepareStatement("insert into planType values(?)");
-		s.setString(1, plan);
-		s.executeUpdate();
-		s.close();
-		
-		s = conn.prepareStatement("insert into discount_planType values(?,?)");
-		s.setString(2, plan);
-		s.executeUpdate();
-		s.close();
-	}
-	
-	private void produceDebitEvent(KafkaProducer<String, String> producer, String token, String planType, String amount) {
-		
-		
+	private void produceDebitEvent(KafkaProducer<String, String> producer, String token, String planType, float amount) {
         String event = "{\"event\":{\"eventType\":\"debit\", \"info\":{ " +
 				"\"token\": \" " + token + "\", "+
 				"\"planType\": \"" + planType +"\", "+
