@@ -1,7 +1,4 @@
-package webservice;
-
-import java.io.InputStream;
-import java.io.OutputStream;
+package Webservice;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -10,5 +7,5 @@ import javax.jws.WebService;
 @WebService
 public interface OperatorManagementService{
 	@WebMethod
-	public void startService(InputStream inputStream, OutputStream outputStream);
+	public void startService();
 }

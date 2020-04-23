@@ -6,6 +6,7 @@ USE operatorManagementDB;
 CREATE TABLE operator(
     operatorName VARCHAR(100) NOT NULL,
     operatorType VARCHAR(2) NOT NULL,
+    price DECIMAL (4, 2),
     CONSTRAINT pk_operator PRIMARY KEY (operatorName)
 );
 
@@ -15,8 +16,6 @@ CREATE TABLE discount(
     value INT NOT NULL,
     beginAt DATETIME NOT NULL,
     endAt DATETIME NOT NULL,
-    passOnly BOOLEAN NOT NULL,
-    nonPassOnly BOOLEAN NOT NULL,
     CONSTRAINT pk_discount PRIMARY KEY (discountId)
 );
 

@@ -23,8 +23,6 @@
             "cost": "23",
             "token": "69c594cfdeeaedd220",
             "planType": "pre-paid",
-            "tripId": "tod89430d",
-            "operatorType": "t1",
             "operatorName": "Uber",
             "timeStamp": "2020-02-29 20:57:10.294"
         }
@@ -49,9 +47,9 @@
         "eventType": "t0-check-in",
         "operator": "Metro",
         "info": {
-            "token": "t1",
-            "station": "Odivelas",
-            "timestamp": "2020-02-29 18:23:41.278"
+            "Token": "t1",
+            "Station": "Odivelas",
+            "Timestamp": "2020-02-29 18:23:41.278"
         }
     }
 }
@@ -61,9 +59,9 @@
         "eventType": "t0-check-out",
         "operator": "Metro",
         "info": {
-            "token": "t1",
-            "station": "Alameda",
-            "timestamp": "2020-02-29 18:23:47.718"
+            "Token": "t1",
+            "Station": "Alameda",
+            "Timestamp": "2020-02-29 18:23:47.718"
         }
     }
 }
@@ -74,9 +72,9 @@
         "eventType": "t1",
         "operator": "Uber",
         "info": {
-            "token": "t2",
-            "price": "20.63",
-            "timestamp": "2020-02-29 19:45:58.638"
+            "Token": "t2",
+            "Price": "20.63",
+            "Timestamp": "2020-02-29 19:45:58.638"
         }
     }
 }
@@ -87,10 +85,10 @@
         "eventType": "t2",
         "operator": "Gira",
         "info": {
-            "token":"t1",
-            "time":"3600", -> just used for user history
-            "price": "12.60",
-            "timestamp":"2020-02-29 20: 57: 10.294"
+            "Token":"t1",
+            "Time":"3600", -> just used for user history
+            "Price": "12.60",
+            "Timestamp":"2020-02-29 20: 57: 10.294"
         }
     }
 }
@@ -111,14 +109,25 @@
 {
     "event": {
         "eventType": "new-discount",
-        "operator": ["Gira"], -> can have more than one
+        "operator": [
+            {
+                "operator": "Gira"
+            }
+        ],
         "info": {
             "name": "Dia do Ambiente",
             "discountId": "Gira-1-12",
             "value": "20",
             "beginAt": "2020-06-05 00:00:0.000",
             "endAt": "2020-06-05 23:59:59.999",
-            "appliesToPlanType": ["generalPass","pre-paid"]
+            "appliesToPlanType": [
+                {
+                    "plan": "generalPass"
+                },
+                {
+                    "plan": "pre-paid"
+                }
+            ]
         }
     }
 }

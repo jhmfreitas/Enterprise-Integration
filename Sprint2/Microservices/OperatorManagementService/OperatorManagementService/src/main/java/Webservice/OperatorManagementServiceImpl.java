@@ -1,4 +1,4 @@
-package webservice;
+package Webservice;
 
 import javax.jws.WebService;
 
@@ -14,13 +14,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import kafka.admin.AdminUtils;
-import kafka.admin.RackAwareMode;
-import kafka.utils.ZKStringSerializer$;
-import kafka.utils.ZkUtils;
-
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -29,11 +22,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import kafka.utils.ZkUtils;
+import kafka.admin.AdminUtils;
+import kafka.admin.RackAwareMode;
+import kafka.utils.ZKStringSerializer$;
 
 //Service Implementation
 @WebService(endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-18-206-239-50.compute-1.amazonaws.com";
+	static String AWSIP = "ec2-34-228-247-65.compute-1.amazonaws.com";
 	static String AWSDBIP = "operatordb.cfergfluhibr.us-east-1.rds.amazonaws.com";
 	public OperatorManagementServiceImpl() {
 	
@@ -68,7 +65,8 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		return(0);
 	}
 	
-	public void startService(InputStream inputStream, OutputStream outputStream) {
+	@Override
+	public void startService() {
 		
 		String groupId = "OperatorManagementService";
 		
@@ -150,7 +148,6 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	private void processEvent(JSONObject extractedEvent, String topic, Connection conn, KafkaProducer<String, String> producer) {
 		try {
 			String eventType = (String) extractedEvent.get("eventType");
-			String operator;
 			
 			JSONObject infojson = (JSONObject) extractedEvent.get("info");
 			System.out.println("processEvent(eventType):" + eventType + "\n");
@@ -158,12 +155,10 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			
 			switch(eventType) {
 				case "trip-cost":
-					operator = (String) extractedEvent.get("operator");
-					System.out.println("processEvent(operator):" + operator + "\n");
 					processTripCostEvent(conn, infojson, producer);
 					break;
 				case "new-operator":
-					operator = (String) extractedEvent.get("operator");
+					String operator = (String) extractedEvent.get("operator");
 					System.out.println("processEvent(operator):" + operator + "\n");
 					insertOperator(conn, operator, infojson, producer);
 					break;
@@ -183,16 +178,46 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	
 
 	private void processTripCostEvent(Connection conn, JSONObject infojson, KafkaProducer<String, String> producer) {
-		float baseCost = Float.valueOf((String) infojson.get("baseCost"));
+		String baseCostString = (String) infojson.get("cost");
+		String operatorName = (String) infojson.get("operatorName");
+		float baseCost;
+		if(baseCostString.equals("null")) {
+			System.out.println("processTripCostEvent: basecost is null -> " + baseCostString + "\n");
+			baseCost = getOperatorBaseCost(conn, operatorName);
+		}else {
+			System.out.println("processTripCostEvent: basecost is -> " + baseCostString + "\n");
+			baseCost = Float.valueOf(baseCostString);
+		}
 		String timeStamp = (String) infojson.get("timeStamp");
 		String planType = (String) infojson.get("planType");
 		String token = (String) infojson.get("token");
-		String operatorName = (String) infojson.get("operatorName");
 		
 		float discount = getDiscount(conn, planType, timeStamp, operatorName);
 		float debitAmount = baseCost * discount;
 			
 		produceDebitEvent(producer, token, planType, debitAmount);
+	}
+	
+	private float getOperatorBaseCost(Connection conn, String operatorName) {
+		PreparedStatement s;
+		ResultSet resultSet;
+		try {
+			s = conn.prepareStatement("select price from operator where operatorName = ?");
+			s.setString(1, operatorName);
+			resultSet = s.executeQuery();
+			while (resultSet.next()) {
+				System.out.println("Got operator cost ->" + resultSet.getFloat("price") + "\n");
+				return resultSet.getFloat("price");
+		    }
+		    
+		    s.close();
+		    resultSet.close();
+
+		} catch (SQLException e) {
+			System.out.println("Error : getOperatorBaseCost ->" + e.toString() + "\n");
+		}
+		
+		return 1;
 	}
 	
 	private float getDiscount(Connection conn, String planType, String timestamp, String operatorName) {
@@ -233,12 +258,14 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	
 	private void insertOperator(Connection conn, String operator, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException {
 		String operatorType = (String) infojson.get("operatorType");
+		String price = (String) infojson.get("baseCost");
 		
 		addTopic(operator, operatorType);
 		
-		PreparedStatement s = conn.prepareStatement("insert into operator values(?,?)");
+		PreparedStatement s = conn.prepareStatement("insert into operator values(?,?,?)");
 		s.setString(1, operator);
 		s.setString(2, operatorType);
+		s.setFloat(3, Float.parseFloat(price));
 		s.executeUpdate();
 		s.close();
 		
@@ -289,7 +316,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	
 	private void produceDebitEvent(KafkaProducer<String, String> producer, String token, String planType, float amount) {
         String event = "{\"event\":{\"eventType\":\"debit\", \"info\":{ " +
-				"\"token\": \" " + token + "\", "+
+				"\"token\": \"" + token + "\", "+
 				"\"planType\": \"" + planType +"\", "+
 				"\"amount\": \"" + amount + "\" "+
 			"}"+
