@@ -19,6 +19,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -265,7 +266,12 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		PreparedStatement s = conn.prepareStatement("insert into operator values(?,?,?)");
 		s.setString(1, operator);
 		s.setString(2, operatorType);
-		s.setFloat(3, Float.parseFloat(price));
+		if(price.equals("null")) {
+			s.setNull(3,Types.FLOAT);
+		}
+		else {
+			s.setFloat(3, Float.parseFloat(price));
+		}
 		s.executeUpdate();
 		s.close();
 		
