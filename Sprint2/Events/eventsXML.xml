@@ -1,72 +1,113 @@
 //Register new User
-<root>
+<event>
   <eventType>new-user</eventType>
-  <user>
-    <id>69c594cfdeeaedd220</id>
-    <email>user@gmail.com</email>
-    <firstName>Paulo</firstName>
-    <lastName>Neves</lastName>
-    <planType>pre-paid</planType>
-    <balance>500</balance>
-    <hasPass>true</hasPass>
-  </user>
-</root>
+  <info>
+      <balance>500</balance>
+      <email>user@gmail.com</email>
+      <firstName>Paulo</firstName>
+      <id>69c594cfdeeaedd220</id>
+      <lastName>Neves</lastName>
+      <planType>pre-paid</planType>
+  </info>
+</event>
 
 //TripCost event
-<root>
+<event>
   <eventType>trip-cost</eventType>
   <info>
-    <baseCost>23</baseCost>
-    <token>69c594cfdeeaedd220</token>
-    <hasPass>true</hasPass>
-    <tripId>tod89430d</tripId>
-    <operatorType>t1</operatorType>
-    <operatorName>Uber</operatorName>
-    <timeStamp>2020-02-29 20:57:10.294</timeStamp>
+      <cost>23</cost>
+      <operatorName>Uber</operatorName>
+      <planType>pre-paid</planType>
+      <timeStamp>2020-02-29 20:57:10.294</timeStamp>
+      <token>69c594cfdeeaedd220</token>
   </info>
-</root>
+</event>
 
 //Debit
-<root>
+<event>
   <eventType>debit</eventType>
   <info>
-    <token>69c594cfdeeaedd220</token>
-    <amount>20</amount>
+      <amount>20</amount>
+      <planType>pre-paid</planType>
+      <token>69c594cfdeeaedd220</token>
   </info>
-</root>
+</event>
 
 //New event from T0 operators
-<Metro>
-  <CheckIn>
-    <Token>t1</Token>
-    <Station>Odivelas</Station>
-    <Timestamp>2020-02-29 18:23:41.278</Timestamp>
-  </CheckIn>
-</Metro>
+<event>
+  <eventType>t0-check-in</eventType>
+  <info>
+      <Station>Odivelas</Station>
+      <Timestamp>2020-02-29 18:23:41.278</Timestamp>
+      <Token>t15345</Token>
+  </info>
+  <operator>Metro</operator>
+</event>
 
-<Metro>
-  <CheckOut>
-    <Token>t1</Token>
-    <Station>Alameda</Station>
-    <Timestamp>2020-02-29 18:23:47.718</Timestamp>
-  </CheckOut>
-</Metro>
+<event>
+  <eventType>t0-check-out</eventType>
+  <info>
+      <Station>Alameda</Station>
+      <Timestamp>2020-02-29 18:23:47.718</Timestamp>
+      <Token>t5431</Token>
+  </info>
+  <operator>Metro</operator>
+</event>
 
 //New event from T1 operators
-<Uber>
-  <Usage>
-    <Token>t2</Token>
-    <Price>70.51.901</Price>
-    <Timestamp>2020-02-29 19:45:58.638</Timestamp>
-  </Usage>
-</Uber>
+<event>
+  <eventType>t1</eventType>
+  <info>
+      <Price>20.63</Price>
+      <Timestamp>2020-02-29 19:45:58.638</Timestamp>
+      <Token>t2</Token>
+  </info>
+  <operator>Uber</operator>
+</event>
 
 //New event from T2 operators
-<Gira>
-  <Usage>
+<event>
+  <eventType>t2</eventType>
+  <info>
       <Price>12.60</Price>
       <Time>3600</Time>
       <Timestamp>2020-02-29 20: 57: 10.294</Timestamp>
       <Token>t1</Token>
-  </Usage>
-</Gira>
+  </info>
+  <operator>Gira</operator>
+</event>
+
+//New operator
+<event>
+  <eventType>new-operator</eventType>
+  <info>
+      <baseCost>2.25</baseCost>
+      <operatorType>t0</operatorType>
+  </info>
+  <operator>Carris</operator>
+</event>
+
+//New discount
+<event>
+  <eventType>new-discount</eventType>
+  <info>
+      <appliesToPlanType>
+        <element>
+            <plan>generalPass</plan>
+        </element>
+        <element>
+            <plan>pre-paid</plan>
+        </element>
+      </appliesToPlanType>
+      <beginAt>2020-06-05 00:00:0.000</beginAt>
+      <discountId>Gira-1-12</discountId>
+      <endAt>2020-06-05 23:59:59.999</endAt>
+      <name>Dia do Ambiente</name>
+      <value>20</value>
+  </info>
+  <operator>
+      <element>
+        <operator>Gira</operator>
+      </element>
+  </operator>
+</event>
