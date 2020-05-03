@@ -35,7 +35,7 @@ public class UserManagementService implements RequestStreamHandler {
 	public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) {
 		LambdaLogger logger = context.getLogger();
 		String AWSDBIP = "userdb.cfergfluhibr.us-east-1.rds.amazonaws.com";
-		String AWSIP = "ec2-34-228-247-65.compute-1.amazonaws.com";
+		String AWSIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
 		String groupId = "UserManagementService";
 		try {
 			//Get start action

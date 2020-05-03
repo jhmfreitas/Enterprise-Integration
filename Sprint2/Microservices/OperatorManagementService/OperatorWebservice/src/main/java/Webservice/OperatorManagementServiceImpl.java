@@ -31,7 +31,7 @@ import kafka.utils.ZKStringSerializer$;
 //Service Implementation
 @WebService(endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-34-228-247-65.compute-1.amazonaws.com";
+	static String AWSIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
 	static String AWSDBIP = "operatordb.cfergfluhibr.us-east-1.rds.amazonaws.com";
 	public OperatorManagementServiceImpl() {
 	
