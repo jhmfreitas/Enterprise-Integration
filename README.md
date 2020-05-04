@@ -1,6 +1,8 @@
 # Enterprise-Integration
 
-Kong Public DNS : ec2-54-236-120-160.compute-1.amazonaws.com
+Kong Public DNS: ec2-54-236-120-160.compute-1.amazonaws.com
+OperatorDB Public DNS: operatordb.cfergfluhibr.us-east-1.rds.amazonaws.com
+EC2 Instance Public DNS: ec2-54-196-98-231.compute-1.amazonaws.com
 
 ## Kong Important commnads
 ### Start Kong
@@ -15,6 +17,14 @@ docker run -d --name konga -p 1337:1337 pantsel/konga
 
 Access:
 http://192.168.99.100:1337/
+
+
+### Start Operator Management Service
+In EC2-Instance:
+
+cd OperatorWebservice/
+
+mvn exec:java -D"exec.mainClass"="Webservice.OperatorManagementServicePublisher"
 
 ## Camunda Important Commands
 ### Start Camunda Engine

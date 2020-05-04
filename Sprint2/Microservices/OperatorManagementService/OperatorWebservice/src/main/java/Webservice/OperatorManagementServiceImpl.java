@@ -1,9 +1,19 @@
 package Webservice;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+
 import javax.jws.WebService;
 
 import org.I0Itec.zkclient.ZkClient;
-import java.util.Properties;
 import org.I0Itec.zkclient.ZkConnection;
 import org.apache.kafka.clients.consumer.CommitFailedException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -14,29 +24,24 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import kafka.utils.ZkUtils;
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
 import kafka.utils.ZKStringSerializer$;
+import kafka.utils.ZkUtils;
 
 //Service Implementation
-@WebService(endpointInterface = "Webservice.OperatorManagementService")
+@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
+	static String AWSIP = "ec2-54-196-98-231.compute-1.amazonaws.com";
 	static String AWSDBIP = "operatordb.cfergfluhibr.us-east-1.rds.amazonaws.com";
+	static KafkaProducer<String, String> producer;
+	static KafkaConsumer<String, String> consumer;
+	static Connection conn = null;
+	
 	public OperatorManagementServiceImpl() {
 	
 	}
-	public int addTopic(String operatorName, String operatorType){
+	private int addOperatorTopic(String operatorName, String operatorType){
 		
 		String zookeeperConnect = AWSIP + ":2181";
 		int sessionTimeoutMs = 10 * 1000;
@@ -65,7 +70,6 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	
 		return(0);
 	}
-	
 	@Override
 	public void startService() {
 		
@@ -73,7 +77,6 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		
 		try {
 			//Prepare database connection
-			Connection conn = null;
 			boolean bd_ok = false;
 			try {
 				Class.forName("com.mysql.cj.jdbc.Driver");
@@ -92,7 +95,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 			props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 			props.put("auto.commit.offset", "false"); // to commit manually
-			KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
+			consumer = new KafkaConsumer<String, String>(props);
 			List<String> topicsList = new ArrayList<String> ();
 			topicsList.add("TripCosts");
 			topicsList.add("OperatorProvision");
@@ -103,7 +106,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			propsConsumer.put("bootstrap.servers", AWSIP + ":9093," + AWSIP + ":9094," + AWSIP + ":9095");
 			propsConsumer.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
 			propsConsumer.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer");
-			KafkaProducer<String, String> producer = new KafkaProducer<String, String>(propsConsumer);
+			producer = new KafkaProducer<String, String>(propsConsumer);
 			
 			//Start consumer events
 			try {
@@ -121,7 +124,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 						JSONObject extractedEvent = (JSONObject) ((JSONObject) parser.parse(message)).get("event");
 						
 						if(extractedEvent != null && bd_ok) {
-							processEvent(extractedEvent, topic, conn, producer);	
+							processEvent(extractedEvent, topic);	
 						}
 						else {
 							System.out.println("Error : extractedEvent is " + extractedEvent + " and BDConnnection=" + bd_ok + "\n");
@@ -145,61 +148,68 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		}
 	}
 		
-	
-	private void processEvent(JSONObject extractedEvent, String topic, Connection conn, KafkaProducer<String, String> producer) {
-		try {
-			String eventType = (String) extractedEvent.get("eventType");
-			
-			JSONObject infojson = (JSONObject) extractedEvent.get("info");
-			System.out.println("processEvent(eventType):" + eventType + "\n");
-			System.out.println("processEvent(info):" + extractedEvent.get("info") + "\n");
-			
-			switch(eventType) {
-				case "trip-cost":
-					processTripCostEvent(conn, infojson, producer);
-					break;
-				case "new-operator":
-					String operator = (String) extractedEvent.get("operator");
-					System.out.println("processEvent(operator):" + operator + "\n");
-					insertOperator(conn, operator, infojson, producer);
-					break;
-				case "new-discount":
-					JSONArray operators = (JSONArray) extractedEvent.get("operator");
-					System.out.println("processEvent(operator):" + operators + "\n");
-					insertDiscount(conn, operators, infojson, producer);
-					break;
-				default:
-					System.out.println("parseEvent(eventType): Error : There is not such type of event:" + eventType + "\n");
-			}	
-		}catch (SQLException e) {
-			System.out.println("processEvent:" + (String) e.toString() + "\n");
+	private void processEvent(JSONObject extractedEvent, String topic) {
+		String eventType = (String) extractedEvent.get("eventType");
+		
+		JSONObject infojson = (JSONObject) extractedEvent.get("info");
+		System.out.println("processEvent(eventType):" + eventType + "\n");
+		System.out.println("processEvent(info):" + extractedEvent.get("info") + "\n");
+		
+		switch(eventType) {
+			case "trip-cost":
+				processTripCostEventFromJson(infojson);
+				break;
+			case "new-operator":
+				String operator = (String) extractedEvent.get("operator");
+				System.out.println("processEvent(operator):" + operator + "\n");
+				createOperatorFromJson(operator, infojson);
+				break;
+			case "new-discount":
+				JSONArray operators = (JSONArray) extractedEvent.get("operator");
+				System.out.println("processEvent(operator):" + operators + "\n");
+				createDiscountFromJson(operators, infojson);
+				break;
+			default:
+				System.out.println("parseEvent(eventType): Error : There is not such type of event:" + eventType + "\n");
 		}
 
 	}
 	
-
-	private void processTripCostEvent(Connection conn, JSONObject infojson, KafkaProducer<String, String> producer) {
+	private void processTripCostEventFromJson(JSONObject infojson) {
 		String baseCostString = (String) infojson.get("cost");
 		String operatorName = (String) infojson.get("operatorName");
-		float baseCost;
-		if(baseCostString.equals("null")) {
-			System.out.println("processTripCostEvent: basecost is null -> " + baseCostString + "\n");
-			baseCost = getOperatorBaseCost(conn, operatorName);
-		}else {
-			System.out.println("processTripCostEvent: basecost is -> " + baseCostString + "\n");
-			baseCost = Float.valueOf(baseCostString);
-		}
 		String timeStamp = (String) infojson.get("timeStamp");
 		String planType = (String) infojson.get("planType");
 		String token = (String) infojson.get("token");
 		
-		float discount = getDiscount(conn, planType, timeStamp, operatorName);
-		float debitAmount = baseCost * discount;
-			
-		produceDebitEvent(producer, token, planType, debitAmount);
+		processTripCostEvent(baseCostString, operatorName, timeStamp, planType, token);
 	}
 	
-	private float getOperatorBaseCost(Connection conn, String operatorName) {
+	
+	public int processTripCostEvent(String baseCostString, String operatorName, String timeStamp, String planType,
+			String token) {
+		float discount = getDiscount(planType, timeStamp, operatorName);
+		
+		if(discount == -1) {
+			return 1;
+		}
+		float baseCost;
+		if(baseCostString.equals("null")) {
+			System.out.println("processTripCostEvent: basecost is null -> " + baseCostString + "\n");
+			baseCost = getOperatorBaseCost(operatorName);
+		}else {
+			System.out.println("processTripCostEvent: basecost is -> " + baseCostString + "\n");
+			baseCost = Float.valueOf(baseCostString);
+		}
+
+		float debitAmount = baseCost * discount;
+			
+		produceDebitEvent(token, planType, debitAmount);
+		
+		return 0;
+	}
+	
+	private float getOperatorBaseCost(String operatorName) {
 		PreparedStatement s;
 		ResultSet resultSet;
 		try {
@@ -217,14 +227,14 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		} catch (SQLException e) {
 			System.out.println("Error : getOperatorBaseCost ->" + e.toString() + "\n");
 		}
-		
+		//Operator doesn't exist
 		return 1;
 	}
 	
-	private float getDiscount(Connection conn, String planType, String timestamp, String operatorName) {
-		
+	private float getDiscount(String planType, String timestamp, String operatorName) {
 		PreparedStatement s;
 		ResultSet resultSet;
+		float discountValue = 1;
 		try {
 			s = conn.prepareStatement("select value from discount inner join operator_discount on discount.discountId = operator_discount.discountId inner join discount_planType on discount.discountId = discount_planType.discountId where beginAt >= ? and endAt <= ? and operatorName = ? and plan=?");
 			s.setTimestamp(1, java.sql.Timestamp.valueOf(timestamp));
@@ -232,52 +242,74 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			s.setString(3, operatorName);
 			s.setString(4, planType);
 			resultSet = s.executeQuery();
-			float discountValue = 0;
+			float discountValueAux = 0;
 			while (resultSet.next()) {
 				float value = resultSet.getInt("value")/100;
-				if(value > discountValue) {
+				if(value > discountValueAux) {
 					System.out.println("getDiscount : Discount found = " + value + "\n");
-					discountValue = value;
+					discountValueAux = value;
 				}
 		    }
 		    
 		    s.close();
 		    resultSet.close();
-		    if(discountValue != 0){
-		    	System.out.println("getDiscount : Best Discount found = " + discountValue + "\n");
-				return discountValue;
+		    if(discountValueAux != 0){
+		    	System.out.println("getDiscount : Best Discount found = " + discountValueAux + "\n");
+		    	discountValue = discountValueAux;
 		    }
-		    //No applicable discount
-		    return 1;
 		} catch (SQLException e) {
 			System.out.println("Error : Looking for discount ->" + e.toString() + "\n");
+			return -1;
 		}
 		
-		//Should not happen
-		return 1;
+		return discountValue;
 	}
 	
-	private void insertOperator(Connection conn, String operator, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException {
+	private void createOperatorFromJson(String operator, JSONObject infojson){
 		String operatorType = (String) infojson.get("operatorType");
 		String price = (String) infojson.get("baseCost");
 		
-		addTopic(operator, operatorType);
-		
-		PreparedStatement s = conn.prepareStatement("insert into operator values(?,?,?)");
-		s.setString(1, operator);
-		s.setString(2, operatorType);
-		if(price.equals("null")) {
-			s.setNull(3,Types.FLOAT);
-		}
-		else {
-			s.setFloat(3, Float.parseFloat(price));
-		}
-		s.executeUpdate();
-		s.close();
-		
+		createOperator(operator, operatorType, price);
 	}
 	
-	private void insertDiscount(Connection conn, JSONArray operators, JSONObject infojson, KafkaProducer<String, String> producer) throws SQLException {
+	@Override
+	public String createOperator(String operator, String operatorType, String price) {
+		if(insertOperatorInDB(operator, operatorType, price) == 0) {
+			if(addOperatorTopic(operator, operatorType) == 0) {
+				return "Success";
+			}
+		}
+		
+		return "Failure";
+	}
+	/*
+	public void createDiscount(ArrayList<String> operators, String discountId,String discountName, String value, String beginAt, String endAt, ArrayList<String> planTypes)
+	{
+		insertDiscountInDB(operators, discountId, discountName, value, beginAt, endAt, planTypes);
+	}*/
+	
+	private int insertOperatorInDB(String operator, String operatorType, String price) {
+		PreparedStatement s;
+		try {
+			s = conn.prepareStatement("insert into operator values(?,?,?)");
+			s.setString(1, operator);
+			s.setString(2, operatorType);
+			if(price.equals("null")) {
+				s.setNull(3,Types.FLOAT);
+			}
+			else {
+				s.setFloat(3, Float.parseFloat(price));
+			}
+			s.executeUpdate();
+			s.close();
+		} catch (SQLException e) {
+			System.out.println("operator:" + (String) e.toString() + "\n");
+			return 1;
+		}
+		return 0;
+	}
+	
+	private void createDiscountFromJson(JSONArray operators, JSONObject infojson){
 		String discountId = (String) infojson.get("discountId");
 		String discountName = (String) infojson.get("discountName");
 		String value = (String) infojson.get("value");
@@ -285,14 +317,24 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		String endAt = (String) infojson.get("endAt");
 		JSONArray planTypes = (JSONArray) infojson.get("appliesToPlanType");
 		
-		PreparedStatement s = conn.prepareStatement("insert into discount values(?,?,?,?,?,?,?)");
-		s.setString(1, discountId);
-		s.setString(2, discountName);
-		s.setInt(3, Integer.parseInt(value));
-		s.setTimestamp(4, java.sql.Timestamp.valueOf(beginAt));
-		s.setTimestamp(5, java.sql.Timestamp.valueOf(endAt));
-		s.executeUpdate();
-		s.close();
+		insertDiscountInDB(operators, discountId, discountName, value, beginAt, endAt, planTypes);
+	}
+	
+	private void insertDiscountInDB(JSONArray operators, String discountId, String discountName, String value,
+			String beginAt, String endAt, JSONArray planTypes) {
+		PreparedStatement s;
+		try {
+			s = conn.prepareStatement("insert into discount values(?,?,?,?,?,?,?)");
+			s.setString(1, discountId);
+			s.setString(2, discountName);
+			s.setInt(3, Integer.parseInt(value));
+			s.setTimestamp(4, java.sql.Timestamp.valueOf(beginAt));
+			s.setTimestamp(5, java.sql.Timestamp.valueOf(endAt));
+			s.executeUpdate();
+			s.close();
+		} catch (SQLException e) {
+			System.out.println("insertDiscount:" + (String) e.toString() + "\n");
+		}
 		
 		
         Iterator<String> operatorsIterator = operators.iterator();
@@ -300,27 +342,35 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
         	String operator = operatorsIterator.next();
         	System.out.println("Operator:" + operator);
             
-            s = conn.prepareStatement("insert into operator_discount values(?,?)");
-    		s.setString(1, operator);
-    		s.setString(2, discountId);
-    		s.executeUpdate();
-    		s.close();
+            try {
+				s = conn.prepareStatement("insert into operator_discount values(?,?)");
+	    		s.setString(1, operator);
+	    		s.setString(2, discountId);
+	    		s.executeUpdate();
+	    		s.close();
+			} catch (SQLException e) {
+				System.out.println("operator_discount:" + (String) e.toString() + "\n");
+			}
+
     		
     		for (int i = 0; i < planTypes.size(); i++) {
     			String plan = (String) planTypes.get(i);
 	          	System.out.println("PlanType:" + plan);
 	              
-	          	s = conn.prepareStatement("insert into discount_planType values(?,?)");
-	      		s.setString(1, discountId);
-	      		s.setString(2, plan);
-	      		s.executeUpdate();
-	      		s.close();
+	          	try {
+					s = conn.prepareStatement("insert into discount_planType values(?,?)");
+		      		s.setString(1, discountId);
+		      		s.setString(2, plan);
+		      		s.executeUpdate();
+		      		s.close();
+				} catch (SQLException e) {
+					System.out.println("discount_planType:" + (String) e.toString() + "\n");
+				}
 			}
         }
-		
 	}
 	
-	private void produceDebitEvent(KafkaProducer<String, String> producer, String token, String planType, float amount) {
+	private void produceDebitEvent(String token, String planType, float amount) {
         String event = "{\"event\":{\"eventType\":\"debit\", \"info\":{ " +
 				"\"token\": \"" + token + "\", "+
 				"\"planType\": \"" + planType +"\", "+
@@ -333,4 +383,15 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		producer.send(record);
 		System.out.println("produceDebitEvent : Sent -> " + event + "\n");     	
 	}
+	
+	@Override
+	public String createTripCost(String baseCostString, String operatorName, String timeStamp, String planType,
+			String token) {
+		if(processTripCostEvent(baseCostString, operatorName, timeStamp, planType, token) == 0) {
+			return "Success";
+		}
+		
+		return "Failure";
+	}
+
 }

@@ -24,18 +24,15 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
 import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 
 //Service Implementation
-@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-54-84-79-209.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementServiceImpl")
+@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
+	static String AWSIP = "ec2-54-196-98-231.compute-1.amazonaws.com";
 	static String AWSDBIP = "operatordb.cfergfluhibr.us-east-1.rds.amazonaws.com";
 	static KafkaProducer<String, String> producer;
 	static KafkaConsumer<String, String> consumer;
@@ -44,7 +41,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	public OperatorManagementServiceImpl() {
 	
 	}
-	public int addOperatorTopic(String operatorName, String operatorType){
+	private int addOperatorTopic(String operatorName, String operatorType){
 		
 		String zookeeperConnect = AWSIP + ":2181";
 		int sessionTimeoutMs = 10 * 1000;
@@ -188,10 +185,14 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		processTripCostEvent(baseCostString, operatorName, timeStamp, planType, token);
 	}
 	
-	public void processTripCostEvent(String baseCostString, String operatorName, String timeStamp, String planType,
+	
+	public int processTripCostEvent(String baseCostString, String operatorName, String timeStamp, String planType,
 			String token) {
 		float discount = getDiscount(planType, timeStamp, operatorName);
 		
+		if(discount == -1) {
+			return 1;
+		}
 		float baseCost;
 		if(baseCostString.equals("null")) {
 			System.out.println("processTripCostEvent: basecost is null -> " + baseCostString + "\n");
@@ -204,6 +205,8 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		float debitAmount = baseCost * discount;
 			
 		produceDebitEvent(token, planType, debitAmount);
+		
+		return 0;
 	}
 	
 	private float getOperatorBaseCost(String operatorName) {
@@ -256,6 +259,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		    }
 		} catch (SQLException e) {
 			System.out.println("Error : Looking for discount ->" + e.toString() + "\n");
+			return -1;
 		}
 		
 		return discountValue;
@@ -269,9 +273,14 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	}
 	
 	@Override
-	public void createOperator(String operator, String operatorType, String price) {
-		insertOperatorInDB(operator, operatorType, price);
-		addOperatorTopic(operator, operatorType);
+	public String createOperator(String operator, String operatorType, String price) {
+		if(insertOperatorInDB(operator, operatorType, price) == 0) {
+			if(addOperatorTopic(operator, operatorType) == 0) {
+				return "Success";
+			}
+		}
+		
+		return "Failure";
 	}
 	/*
 	public void createDiscount(ArrayList<String> operators, String discountId,String discountName, String value, String beginAt, String endAt, ArrayList<String> planTypes)
@@ -279,7 +288,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		insertDiscountInDB(operators, discountId, discountName, value, beginAt, endAt, planTypes);
 	}*/
 	
-	private void insertOperatorInDB(String operator, String operatorType, String price) {
+	private int insertOperatorInDB(String operator, String operatorType, String price) {
 		PreparedStatement s;
 		try {
 			s = conn.prepareStatement("insert into operator values(?,?,?)");
@@ -295,7 +304,9 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			s.close();
 		} catch (SQLException e) {
 			System.out.println("operator:" + (String) e.toString() + "\n");
+			return 1;
 		}
+		return 0;
 	}
 	
 	private void createDiscountFromJson(JSONArray operators, JSONObject infojson){
@@ -374,9 +385,13 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	}
 	
 	@Override
-	public void createTripCost(String baseCostString, String operatorName, String timeStamp, String planType,
+	public String createTripCost(String baseCostString, String operatorName, String timeStamp, String planType,
 			String token) {
-		processTripCostEvent(baseCostString, operatorName, timeStamp, planType, token);
+		if(processTripCostEvent(baseCostString, operatorName, timeStamp, planType, token) == 0) {
+			return "Success";
+		}
+		
+		return "Failure";
 	}
 
 }
