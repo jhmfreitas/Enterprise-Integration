@@ -1,7 +1,7 @@
-DROP DATABASE IF EXISTS customerManagementDB;
-CREATE DATABASE IF NOT EXISTS customerManagementDB;
+DROP DATABASE IF EXISTS userdb;
+CREATE DATABASE IF NOT EXISTS userdb;
 
-USE customerManagementDB;
+USE userdb;
 
 DROP TABLE IF EXISTS userInfo;
 CREATE TABLE userInfo

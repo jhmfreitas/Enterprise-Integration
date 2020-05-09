@@ -111,12 +111,12 @@
         "eventType": "new-discount",
         "operator": [
             {
-                "operator": "Gira"
+                "operator": "Metro"
             }
         ],
         "info": {
             "name": "Dia do Ambiente",
-            "discountId": "Gira-1-12",
+            "discountId": "Metro-1-12",
             "value": "20",
             "beginAt": "2020-06-05 00:00:0.000",
             "endAt": "2020-06-05 23:59:59.999",
@@ -131,3 +131,31 @@
         }
     }
 }
+
+
+<soapenv:Envelope
+    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:oper="http://ec2-3-80-233-61.compute-1.amazonaws.com:9997/operatorManagementService">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <oper:createTripCost>
+            <baseCostString>23</baseCostString>
+            <operatorName>Metro</operatorName>
+            <timeStamp>2020-06-5 20: 57: 10.294</timeStamp>
+            <planType>pre-paid</planType>
+            <token>jjdgdjs</token>
+        </oper:createTripCost>
+    </soapenv:Body>
+</soapenv:Envelope>
+
+<?xml version='1.0' encoding='UTF-8'?>
+<S:Envelope
+    xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+    <S:Body>
+        <ns3:createTripCostResponse
+            xmlns:ns2="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService"
+            xmlns:ns3="http://ec2-3-80-233-61.compute-1.amazonaws.com:9997/operatorManagementService">
+            <return>Success</return>
+        </ns3:createTripCostResponse>
+    </S:Body>
+</S:Envelope>

@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -30,9 +31,9 @@ import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 
 //Service Implementation
-@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementService")
+@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-3-80-233-61.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-54-196-98-231.compute-1.amazonaws.com";
+	static String AWSIP = "ec2-3-80-233-61.compute-1.amazonaws.com";
 	static String AWSDBIP = "operatordb.cfergfluhibr.us-east-1.rds.amazonaws.com";
 	static KafkaProducer<String, String> producer;
 	static KafkaConsumer<String, String> consumer;
@@ -43,7 +44,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	}
 	private int addOperatorTopic(String operatorName, String operatorType){
 		
-		String zookeeperConnect = AWSIP + ":2181";
+		String zookeeperConnect = AWSIP + ":2181," + AWSIP + ":2182," + AWSIP + ":2183";
 		int sessionTimeoutMs = 10 * 1000;
 		int connectionTimeoutMs = 8 * 1000;
 		
@@ -53,18 +54,17 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		Properties topicConfig = new Properties();
 	
 		ZkClient zkClient = new ZkClient(
-			zookeeperConnect,
-			sessionTimeoutMs,
-			connectionTimeoutMs,
-			ZKStringSerializer$.MODULE$);
+				zookeeperConnect,
+				sessionTimeoutMs,
+				connectionTimeoutMs,
+				ZKStringSerializer$.MODULE$);
 	
 		boolean isSecureKafkaCluster = false;
 	
-		ZkUtils zkUtils = new ZkUtils(zkClient, new ZkConnection(zookeeperConnect),
-	isSecureKafkaCluster);
-	
+		ZkUtils zkUtils = new ZkUtils(zkClient, new ZkConnection(zookeeperConnect), isSecureKafkaCluster);
+		
 		AdminUtils.createTopic(zkUtils, topic, partitions, replication, topicConfig,
-	RackAwareMode.Enforced$.MODULE$);
+		RackAwareMode.Enforced$.MODULE$);
 		
 		zkClient.close();
 	
@@ -80,7 +80,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			boolean bd_ok = false;
 			try {
 				Class.forName("com.mysql.cj.jdbc.Driver");
-				conn = DriverManager.getConnection("jdbc:mysql://" + AWSDBIP + ":3306/operatorManagementDB", "admin", "projetoie");
+				conn = DriverManager.getConnection("jdbc:mysql://" + AWSDBIP + ":3306/operatordb", "admin", "projetoie");
 				bd_ok = true;
 			} catch (SQLException sqle) {
 				System.out.println("Error : " + sqle.toString());
@@ -113,7 +113,6 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 				System.out.println("startService: Begin!!\n");
 				while (true) {
 					ConsumerRecords<String, String> records = consumer.poll(100);
-					System.out.println("startService: records = " + records.count() + "\n");
 					for (ConsumerRecord<String, String> record : records) {
 						System.out.println("startService: topic = " + record.topic() +", partition = " + record.partition() + ", offset = " + record.offset() + ",customer = " + record.key() + ",message = " + record.value() +"\n");
 						
@@ -201,9 +200,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			System.out.println("processTripCostEvent: basecost is -> " + baseCostString + "\n");
 			baseCost = Float.valueOf(baseCostString);
 		}
-
-		float debitAmount = baseCost * discount;
-			
+		float debitAmount = baseCost * (1.0f - discount);
 		produceDebitEvent(token, planType, debitAmount);
 		
 		return 0;
@@ -232,19 +229,21 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	}
 	
 	private float getDiscount(String planType, String timestamp, String operatorName) {
+		System.out.println("getDiscount : Start searching for discount\n");
 		PreparedStatement s;
 		ResultSet resultSet;
 		float discountValue = 1;
 		try {
-			s = conn.prepareStatement("select value from discount inner join operator_discount on discount.discountId = operator_discount.discountId inner join discount_planType on discount.discountId = discount_planType.discountId where beginAt >= ? and endAt <= ? and operatorName = ? and plan=?");
-			s.setTimestamp(1, java.sql.Timestamp.valueOf(timestamp));
-			s.setTimestamp(2, java.sql.Timestamp.valueOf(timestamp));
-			s.setString(3, operatorName);
-			s.setString(4, planType);
+			s = conn.prepareStatement("select value from discount inner join operator_discount on discount.discountId = operator_discount.discountId inner join discount_planType on discount.discountId = discount_planType.discountId where beginAt <= ? <= endAt and operatorName = ? and plan=?");
+			s.setString(1, timestamp);
+			s.setString(2, operatorName);
+			s.setString(3, planType);
 			resultSet = s.executeQuery();
 			float discountValueAux = 0;
 			while (resultSet.next()) {
-				float value = resultSet.getInt("value")/100;
+				System.out.println("getDiscount : Got results\n");
+				int value = resultSet.getInt("value");
+				System.out.println("getDiscount : value=" + value + "\n");
 				if(value > discountValueAux) {
 					System.out.println("getDiscount : Discount found = " + value + "\n");
 					discountValueAux = value;
@@ -254,8 +253,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		    s.close();
 		    resultSet.close();
 		    if(discountValueAux != 0){
-		    	System.out.println("getDiscount : Best Discount found = " + discountValueAux + "\n");
-		    	discountValue = discountValueAux;
+		    	discountValue = discountValueAux/100.0f;
 		    }
 		} catch (SQLException e) {
 			System.out.println("Error : Looking for discount ->" + e.toString() + "\n");
@@ -282,11 +280,18 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		
 		return "Failure";
 	}
-	/*
-	public void createDiscount(ArrayList<String> operators, String discountId,String discountName, String value, String beginAt, String endAt, ArrayList<String> planTypes)
+	@Override
+	public String createDiscount(String[] operators, String discountId,String discountName, String value, String beginAt, String endAt, String[] planTypes)
 	{
-		insertDiscountInDB(operators, discountId, discountName, value, beginAt, endAt, planTypes);
-	}*/
+		System.out.println("createDiscount: Begin! \n");
+		ArrayList<String> operatorsList = new ArrayList<String>(Arrays.asList(operators));
+		ArrayList<String> planTypesList = new ArrayList<String>(Arrays.asList(planTypes));
+		if(insertDiscountInDB(operatorsList, discountId, discountName, value, beginAt, endAt, planTypesList)==0) {
+			return "Success";
+		}
+		
+		return "Failure";
+	}
 	
 	private int insertOperatorInDB(String operator, String operatorType, String price) {
 		PreparedStatement s;
@@ -317,14 +322,26 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		String endAt = (String) infojson.get("endAt");
 		JSONArray planTypes = (JSONArray) infojson.get("appliesToPlanType");
 		
-		insertDiscountInDB(operators, discountId, discountName, value, beginAt, endAt, planTypes);
+		ArrayList<String> operatorsList = new ArrayList<String>();
+		for (int i = 0; i < operators.size(); i++) {
+			operatorsList.add((String) operators.get(i));  
+		}
+		
+		ArrayList<String> planTypesList = new ArrayList<String>();
+		for (int i = 0; i < planTypes.size(); i++) {
+			planTypesList.add((String) planTypes.get(i));  
+		}
+		
+		
+		insertDiscountInDB(operatorsList, discountId, discountName, value, beginAt, endAt, planTypesList);
 	}
 	
-	private void insertDiscountInDB(JSONArray operators, String discountId, String discountName, String value,
-			String beginAt, String endAt, JSONArray planTypes) {
+	private int insertDiscountInDB(ArrayList<String> operators, String discountId, String discountName, String value,
+			String beginAt, String endAt, ArrayList<String> planTypes) {
 		PreparedStatement s;
 		try {
-			s = conn.prepareStatement("insert into discount values(?,?,?,?,?,?,?)");
+			System.out.println("insertDiscountInDB: Insert discount! \n");
+			s = conn.prepareStatement("insert into discount values(?,?,?,?,?)");
 			s.setString(1, discountId);
 			s.setString(2, discountName);
 			s.setInt(3, Integer.parseInt(value));
@@ -332,8 +349,10 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			s.setTimestamp(5, java.sql.Timestamp.valueOf(endAt));
 			s.executeUpdate();
 			s.close();
+			System.out.println("insertDiscountInDB: Done! \n");
 		} catch (SQLException e) {
 			System.out.println("insertDiscount:" + (String) e.toString() + "\n");
+			return 1;
 		}
 		
 		
@@ -350,6 +369,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	    		s.close();
 			} catch (SQLException e) {
 				System.out.println("operator_discount:" + (String) e.toString() + "\n");
+				return 1;
 			}
 
     		
@@ -365,9 +385,12 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		      		s.close();
 				} catch (SQLException e) {
 					System.out.println("discount_planType:" + (String) e.toString() + "\n");
+					return 1;
 				}
 			}
         }
+        
+        return 0;
 	}
 	
 	private void produceDebitEvent(String token, String planType, float amount) {

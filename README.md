@@ -1,8 +1,14 @@
 # Enterprise-Integration
 
 Kong Public DNS: ec2-54-236-120-160.compute-1.amazonaws.com
-OperatorDB Public DNS: operatordb.cfergfluhibr.us-east-1.rds.amazonaws.com
+http://ec2-54-236-120-160.compute-1.amazonaws.com:8001
+OperatorDB Public DNS: operatordb.ca14fw262vr6.us-east-1.rds.amazonaws.com
+UserDB Public DNS: userdb.ca14fw262vr6.us-east-1.rds.amazonaws.com
 EC2 Instance Public DNS: ec2-54-196-98-231.compute-1.amazonaws.com
+
+Test Kong
+curl -i -X POST --url http://ec2-54-236-120-160.compute-1.amazonaws.com:8000/ --header 'Host: new-user.com' --data '@user.json'
+curl -i -X POST -H "Content-Type: text/xml;charset=UTF-8" --url http://ec2-54-236-120-160.compute-1.amazonaws.com:8000/ --header 'Host: operatorManagementService.com' --data '@operatorTest.xml'
 
 ## Kong Important commnads
 ### Start Kong
@@ -18,7 +24,8 @@ docker run -d --name konga -p 1337:1337 pantsel/konga
 Access:
 http://192.168.99.100:1337/
 
-
+docker container ls -a
+docker container start -i 4ac7185afce3
 ### Start Operator Management Service
 In EC2-Instance:
 

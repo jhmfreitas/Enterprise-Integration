@@ -1,0 +1,12 @@
+
+--CREATES USER REGISTRATION SERVICE
+curl -i -X POST --url http://localhost:8001/services/ --data 'name=UserRegistration' --data 'url=https://7zp5uskhi8.execute-api.us-east-1.amazonaws.com/default/UserRegistration'
+
+--ADDS ROUTE FOR NEW USER CREATION
+curl -i -X POST --url http://localhost:8001/services/UserRegistration/routes --data 'hosts[]=new-user.com'
+
+--CREATES OPERATOR MANAGEMENT SERVICE(deals with operator provision and cost processing)
+curl -i -X POST --url http://localhost:8001/services/ --data 'name=OperatorManagementService' --data 'url=http://ec2-3-80-233-61.compute-1.amazonaws.com:9997/operatorManagementService'
+
+--ADDS ROUTE FOR OPERATOR MANAGEMENT SERVICE OPERATIONS
+curl -i -X POST --url http://localhost:8001/services/OperatorManagementService/routes --data 'hosts[]=operatorManagementService.com'

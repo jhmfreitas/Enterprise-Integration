@@ -31,18 +31,23 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 public class UserManagementService implements RequestStreamHandler {
-
+	String AWSDBIP = "userdb.cfergfluhibr.us-east-1.rds.amazonaws.com";
+	String AWSIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
+	String AWSOperatorIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
+	String groupId = "UserManagementService";
+	KafkaProducer<String, String> producer;
+	Connection conn = null;
+	Connection connOperatorDB = null;
+	KafkaConsumer<String, String> consumer;
 	public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) {
 		LambdaLogger logger = context.getLogger();
-		String AWSDBIP = "userdb.cfergfluhibr.us-east-1.rds.amazonaws.com";
-		String AWSIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
-		String groupId = "UserManagementService";
+		
 		try {
 			//Get start action
 			startService(logger, inputStream);
 			
 			//Prepare database connection
-			Connection conn = null;
+			
 			boolean bd_ok = false;
 			try {
 				Class.forName("com.mysql.cj.jdbc.Driver");
@@ -54,6 +59,17 @@ public class UserManagementService implements RequestStreamHandler {
 				logger.log("Error : " + e.toString());
 			}
 			
+			boolean bdOperator_ok = false;
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+				connOperatorDB = DriverManager.getConnection("jdbc:mysql://" + AWSOperatorIP + ":3306/operatorManagementDB", "admin", "projetoie");
+				bdOperator_ok = true;
+			} catch (SQLException sqle) {
+				System.out.println("Error : " + sqle.toString());
+			} catch (ClassNotFoundException e) {
+				System.out.println("Error : " + e.toString());
+			}
+			
 			//Prepare consumer
 			Properties props = new Properties();
 			props.put("bootstrap.servers", AWSIP + ":9093," + AWSIP + ":9094," + AWSIP + ":9095");
@@ -61,19 +77,19 @@ public class UserManagementService implements RequestStreamHandler {
 			props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 			props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 			props.put("auto.commit.offset", "false"); // to commit manually
-			KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(props);
-			List<String> topicsList = new ArrayList<String> ();
-			topicsList.add("T0_Metro");
-			topicsList.add("T1_Uber");
-			topicsList.add("T2_GIRA");
-			consumer.subscribe(topicsList);
+			consumer = new KafkaConsumer<String, String>(props);
+			
+			
+			//Collect operator names and subscribe to topics
+			subscribeOperatorTopics();
+			
 			
 			//Prepare producer
 			Properties propsConsumer = new Properties();
 			propsConsumer.put("bootstrap.servers", AWSIP + ":9093," + AWSIP + ":9094," + AWSIP + ":9095");
 			propsConsumer.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
 			propsConsumer.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer");
-			KafkaProducer<String, String> producer = new KafkaProducer<String, String>(propsConsumer);
+			producer = new KafkaProducer<String, String>(propsConsumer);
 			
 			//Start consumer events
 			try {
@@ -90,11 +106,11 @@ public class UserManagementService implements RequestStreamHandler {
 						JSONParser parser = new JSONParser();
 						JSONObject extractedEvent = (JSONObject) ((JSONObject) parser.parse(message)).get("event");
 						
-						if(extractedEvent != null && bd_ok) {
+						if(extractedEvent != null && bd_ok && bdOperator_ok) {
 							processEvent(extractedEvent, topic, logger, conn, producer);	
 						}
 						else {
-							logger.log("Error : extractedEvent is " + extractedEvent + " and BDConnnection=" + bd_ok + "\n");
+							logger.log("Error : extractedEvent is " + extractedEvent + " and BDConnnection=" + bd_ok + " and operatorDBConnection=" + bdOperator_ok + "\n");
 						}
 					}
 					// Commit Current Offset
@@ -113,6 +129,32 @@ public class UserManagementService implements RequestStreamHandler {
 		} catch (Exception exc) {
 			logger.log("Error : " + exc.toString()+ "\n");
 		}
+	}
+
+	private void subscribeOperatorTopics() {
+		PreparedStatement s;
+		ResultSet resultSet;
+		List<String> topicsList = new ArrayList<String> ();
+		try {
+			s = connOperatorDB.prepareStatement("select operatorType,operatorName from operator");
+			resultSet = s.executeQuery();
+			while (resultSet.next()) {
+				String operatorType = resultSet.getString("operatorType");
+				String operatorName = resultSet.getString("operatorName");
+				
+				String topicName = operatorType + "_" + operatorName;
+				System.out.println("Subscribing to topic ->" + topicName + "\n");
+				topicsList.add(topicName);
+		    }
+		    
+		    s.close();
+		    resultSet.close();
+		    
+		} catch (SQLException e) {
+			System.out.println("Error : subscribeOperatorTopics ->" + e.toString() + "\n");
+		}
+
+		consumer.subscribe(topicsList);
 	}
 	
 	public void processEvent(JSONObject extractedEvent, String topic, LambdaLogger logger, Connection conn, KafkaProducer<String, String> producer) {

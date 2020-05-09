@@ -1,5 +1,5 @@
 INSERT INTO `operatorManagementDB`.`planType` (`plan`) VALUES ('pre-paid');
-INSERT INTO `operatorManagementDB`.`planType` (`plan`) VALUES ('post-paid ');
+INSERT INTO `operatorManagementDB`.`planType` (`plan`) VALUES ('post-paid');
 INSERT INTO `operatorManagementDB`.`planType` (`plan`) VALUES ('generalPass');
 INSERT INTO `operatorManagementDB`.`planType` (`plan`) VALUES ('passT0');
 INSERT INTO `operatorManagementDB`.`planType` (`plan`) VALUES ('passT1');
