@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_01pye12" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
+  <bpmn:process id="user-registration" name="User Registration" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="User Creation Requested">
+      <bpmn:outgoing>Flow_1wp9pze</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1wp9pze" sourceRef="StartEvent_1" targetRef="Activity_19r8pyo" />
+    <bpmn:endEvent id="Event_042kgfq" name="User Created">
+      <bpmn:incoming>Flow_1jraesl</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1jraesl" sourceRef="Activity_19r8pyo" targetRef="Event_042kgfq" />
+    <bpmn:serviceTask id="Activity_19r8pyo" name="Create User" camunda:type="external" camunda:topic="create-user">
+      <bpmn:incoming>Flow_1wp9pze</bpmn:incoming>
+      <bpmn:outgoing>Flow_1jraesl</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="user-registration">
+      <bpmndi:BPMNEdge id="Flow_1jraesl_di" bpmnElement="Flow_1jraesl">
+        <di:waypoint x="590" y="117" />
+        <di:waypoint x="692" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wp9pze_di" bpmnElement="Flow_1wp9pze">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="490" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="163" y="142" width="69" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_042kgfq_di" bpmnElement="Event_042kgfq">
+        <dc:Bounds x="692" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="677" y="142" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1oije3l_di" bpmnElement="Activity_19r8pyo">
+        <dc:Bounds x="490" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
