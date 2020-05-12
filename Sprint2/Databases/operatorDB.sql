@@ -1,7 +1,7 @@
-DROP DATABASE IF EXISTS operatorManagementDB;
-CREATE DATABASE IF NOT EXISTS operatorManagementDB;
+DROP DATABASE IF EXISTS operatordb;
+CREATE DATABASE IF NOT EXISTS operatordb;
 
-USE operatorManagementDB;
+USE operatordb;
 
 CREATE TABLE operator(
     operatorName VARCHAR(100) NOT NULL,

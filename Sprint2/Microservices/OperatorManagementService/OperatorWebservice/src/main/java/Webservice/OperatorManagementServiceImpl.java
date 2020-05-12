@@ -31,10 +31,10 @@ import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 
 //Service Implementation
-@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-3-80-233-61.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementService")
+@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-18-232-164-46.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-3-80-233-61.compute-1.amazonaws.com";
-	static String AWSDBIP = "operatordb.cfergfluhibr.us-east-1.rds.amazonaws.com";
+	static String AWSIP = "ec2-18-232-164-46.compute-1.amazonaws.com";
+	static String AWSDBIP = "operatordb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
 	static KafkaProducer<String, String> producer;
 	static KafkaConsumer<String, String> consumer;
 	static Connection conn = null;

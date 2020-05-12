@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,14 +19,16 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
-public class UserRegistration implements RequestStreamHandler {
+public class UserManagementServiceUniqueId implements RequestStreamHandler {
 
-	public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) {
+	@Override
+	public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
 		LambdaLogger logger = context.getLogger();
 
 		try {
 			String AWSDBIP = "userdb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
 			Connection conn = null;
+
 			// Prepare database connection
 			boolean bd_ok = false;
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -37,44 +40,42 @@ public class UserRegistration implements RequestStreamHandler {
 			JSONObject responseJson = new JSONObject();
 
 			JSONObject event = (JSONObject) parser.parse(reader);
+			
+			String token = new String();
+			if (event.get("body") != null) {
+				JSONObject bodyjson = (JSONObject) parser.parse((String) event.get("body"));
+				if (bodyjson.get("id") != null)
+					token = (String) bodyjson.get("id");
+			}
+
 			logger.log("start:" + (String) event.toString() + "\n");
 			JSONObject responseBody = new JSONObject();
-			
+			ResultSet resultSet;
+			String validData = "true";
+
 			if (bd_ok == true && event != null) {
-				String token = (String) event.get("id");
-				String nif = (String) event.get("nif");
-				String email = (String) event.get("email");
-				String planType = (String) event.get("planType");
-				String firstName = (String) event.get("firstName");
-				String lastName = (String) event.get("lastName");
-				String balance = (String) event.get("balance");
-
-				PreparedStatement s = conn.prepareStatement("insert into userInfo values(?,?,?,?,?,?)");
+				PreparedStatement s;
+				s = conn.prepareStatement("select * from userInfo where token = ?");
 				s.setString(1, token);
-				s.setString(2, nif);
-				s.setString(3, email);
-				s.setString(4, firstName);
-				s.setString(5, lastName);
-				s.setString(6, planType);
-				s.executeUpdate();
-				s.close();
+				resultSet = s.executeQuery();
+				while (resultSet.next()) {
+					logger.log("Repeated ID!\n");
+					validData = "false";
+				}
 
-				s = conn.prepareStatement("insert into userBalance values(?,?)");
-				s.setString(1, token);
-				s.setInt(2, Integer.parseInt(balance));
-				s.executeUpdate();
 				s.close();
+				resultSet.close();
+				conn.close();
 
-				logger.log("Success: User inserted! \n");
-				
-				responseBody.put("message","Success");
+				// responseBody.put("message",validData);
 			} else {
-				logger.log("Failed:\n");
-				responseBody.put("message","Failure");
+				logger.log("Failed: bd_ok=" + bd_ok + " event=" + event + "\n");
+				// responseBody.put("message","False");
 			}
-			
+
+			responseBody.put("message", validData);
 			JSONObject headerJson = new JSONObject();
-			headerJson.put("x-custom-header", "User Registration");
+			headerJson.put("x-custom-header", "Unique ID Validation");
 			responseJson.put("statusCode", 200);
 			responseJson.put("headers", headerJson);
 			responseJson.put("body", responseBody.toString());
@@ -89,5 +90,7 @@ public class UserRegistration implements RequestStreamHandler {
 		} catch (IOException | ParseException ioe) {
 			logger.log("Error:" + ioe.toString() + "\n");
 		}
+
 	}
+
 }

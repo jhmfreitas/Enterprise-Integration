@@ -10,3 +10,9 @@ curl -i -X POST --url http://localhost:8001/services/ --data 'name=OperatorManag
 
 --ADDS ROUTE FOR OPERATOR MANAGEMENT SERVICE OPERATIONS
 curl -i -X POST --url http://localhost:8001/services/OperatorManagementService/routes --data 'hosts[]=operatorManagementService.com'
+
+--CREATES USER UNIQUE ID VALIDATION SERVICE
+curl -i -X POST --url http://localhost:8001/services/ --data 'name=UniqueIDValidation' --data 'url=https://8gyz42fgd6.execute-api.us-east-1.amazonaws.com/default/UniqueIDValidation'
+
+--ADDS ROUTE FOR UNIQUE ID VALIDATION
+curl -i -X POST --url http://localhost:8001/services/UniqueIDValidation/routes --data 'hosts[]=unique-id.com'

@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS userInfo;
 CREATE TABLE userInfo
 (
     token VARCHAR(100) NOT NULL,
+    nif VARCHAR(9) UNIQUE NOT NULL,
     email VARCHAR(50) NOT NULL,
     firstName VARCHAR(20) NOT NULL,
     lastName VARCHAR(20) NOT NULL,
