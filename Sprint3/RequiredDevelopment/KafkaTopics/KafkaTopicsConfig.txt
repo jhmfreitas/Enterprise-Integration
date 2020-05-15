@@ -1,0 +1,12 @@
+sudo /usr/local/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181, localhost:2182, localhost:2183 -replication-factor 3 --partitions 3 --topic T0_METRO
+
+sudo /usr/local/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181, localhost:2182, localhost:2183 -replication-factor 3 --partitions 3 -–topic T1_UBER
+
+sudo /usr/local/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181, localhost:2182, localhost:2183 -replication-factor 3 --partitions 3 –-topic T2_GIRA
+
+sudo /usr/local/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181, localhost:2182, localhost:2183 -replication-factor 3 --partitions 3 --topic TripCosts
+
+sudo /usr/local/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181, localhost:2182, localhost:2183 -replication-factor 3 --partitions 3 --topic Debit
+
+sudo /usr/local/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181, localhost:2182, localhost:2183 -replication-factor 3 --partitions 3 --topic OperatorProvision
+

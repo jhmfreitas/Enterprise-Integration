@@ -1,0 +1,98 @@
+openapi: 3.0.1
+info:
+  title: Payment Service API
+  description: This document contains information about Payment Service Interface
+  version: "0.4"
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+# Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/jhmfreitas/UserManagementAPI/0.1
+  - description: LoadAccountService
+    url: 'https://zhx0o69m0i.execute-api.us-east-1.amazonaws.com/default/LoadAccountService'
+  - description: BlackListUser
+    url: 'https://z62m3l4rh2.execute-api.us-east-1.amazonaws.com/default/BlackListUser'
+tags:
+  - name: User
+    description: User related operations
+  - name: Account
+    description: Account related operations
+paths:
+  /LoadAccountService:
+    post:
+      tags:
+        - User
+      description: This method blacklists a user
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+      requestBody:
+        $ref: '#/components/requestBodies/LoadAccountRequest'
+  /BlackListUser:
+    post:
+      tags:
+        - Account
+      description: This method loads an account
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+      requestBody:
+        $ref: '#/components/requestBodies/BlackListUserRequest'
+components:
+  requestBodies:
+    LoadAccountRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoadAccount'
+      required: true
+    BlackListUserRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BlackListUser'
+      required: true
+  schemas:
+    LoadAccount:
+      type: object
+      required:
+        - id
+        - amount
+      properties:
+        id:
+          type: string
+        amount:
+          type: string
+    BlackListUser:
+      type: object
+      required:
+        - id
+        - operation
+      properties:
+        id:
+          type: string
+        operation:
+          type: string
+          enum:
+            - undo-blacklist
+            - blacklist
+    ResponseMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - Success
+            - Failure

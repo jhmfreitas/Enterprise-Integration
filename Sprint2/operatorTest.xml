@@ -1,4 +1,4 @@
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://ec2-18-232-164-46.compute-1.amazonaws.com:9997/operatorManagementService">
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://ec2-34-235-169-157.compute-1.amazonaws.com:9997/operatorManagementService">
 <soapenv:Header/>
 <soapenv:Body>
 <web:startService>

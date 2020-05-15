@@ -1,0 +1,156 @@
+openapi: 3.0.1
+info:
+  title: User Management Service API
+  description: This document contains information about Operator Management Service Interface
+  version: '0.1'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+# Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/jhmfreitas/UserManagementAPI/0.1
+  - description: UserRegistration
+    url: 'https://7zp5uskhi8.execute-api.us-east-1.amazonaws.com/default/UserRegistration'
+  - description: UniqueID
+    url: 'https://8gyz42fgd6.execute-api.us-east-1.amazonaws.com/default/UniqueIDValidation'
+  - description: UserRemoval
+    url: 'https://hbjv9al4p4.execute-api.us-east-1.amazonaws.com/default/UserRemoval'
+tags:
+  - name: User
+    description: User related operations
+paths:
+  /UserRegistration:
+    post:
+      tags:
+        - User
+      description: This method creates a new user
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+      requestBody:
+        $ref: '#/components/requestBodies/User'
+  /UniqueID:
+    post:
+      tags:
+        - User
+      description: This method creates a new user
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ValidDataResponseMessage'
+      requestBody:
+        $ref: '#/components/requestBodies/UniqueIDRequest'
+  /UserRemoval:
+    post:
+      tags:
+        - User
+      description: This method creates a new user
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+      requestBody:
+        $ref: '#/components/requestBodies/UserRemovalRequest'
+components:
+  requestBodies:
+    User:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+      required: true
+    UniqueIDRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UniqueID'
+      required: true
+    UserRemovalRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UserRemoval'
+      required: true
+  schemas:
+    User:
+      type: object
+      required:
+        - id
+        - nif
+        - email
+        - planType
+        - firstName
+        - lastName
+        - balance
+        - address
+      properties:
+        id:
+          type: string
+        nif:
+          type: string
+        email:
+          type: string
+        planType:
+          type: string
+          enum:
+            - pre-paid
+            - generalPass
+            - post-paid
+            - passT0
+            - passT1
+            - passT2
+            - combined_T0_T1
+            - combined_T0_T2
+            - combined_T1_T2
+        firstName:
+          type: string
+        lastName:
+          type: string
+        balance:
+          type: string
+        address:
+          type: string
+    UniqueID:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+    UserRemoval:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+    ResponseMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - Success
+            - Failure
+    ValidDataResponseMessage:
+      type: object
+      properties:
+        message:
+          type: boolean
+          enum:
+            - true
+            - false

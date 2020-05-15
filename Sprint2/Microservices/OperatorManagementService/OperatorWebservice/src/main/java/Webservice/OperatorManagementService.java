@@ -7,7 +7,7 @@ import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlElement;
 
 //Service Endpoint Interface
-@WebService(targetNamespace="http://ec2-18-232-164-46.compute-1.amazonaws.com:9997/operatorManagementService")
+@WebService(targetNamespace="http://ec2-34-235-169-157.compute-1.amazonaws.com:9997/operatorManagementService")
 public interface OperatorManagementService{
 	@WebMethod
 	public void startService();

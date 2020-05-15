@@ -31,9 +31,9 @@ import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 
 //Service Implementation
-@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-18-232-164-46.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementService")
+@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-34-235-169-157.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-18-232-164-46.compute-1.amazonaws.com";
+	static String AWSIP = "ec2-34-235-169-157.compute-1.amazonaws.com";
 	static String AWSDBIP = "operatordb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
 	static KafkaProducer<String, String> producer;
 	static KafkaConsumer<String, String> consumer;
@@ -44,7 +44,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 	}
 	private int addOperatorTopic(String operatorName, String operatorType){
 		
-		String zookeeperConnect = AWSIP + ":2181," + AWSIP + ":2182," + AWSIP + ":2183";
+		String zookeeperConnect = AWSIP + ":2181," + AWSIP +":2182," + AWSIP +":2183";
 		int sessionTimeoutMs = 10 * 1000;
 		int connectionTimeoutMs = 8 * 1000;
 		

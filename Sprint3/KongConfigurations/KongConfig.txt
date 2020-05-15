@@ -16,3 +16,25 @@ curl -i -X POST --url http://localhost:8001/services/ --data 'name=UniqueIDValid
 
 --ADDS ROUTE FOR UNIQUE ID VALIDATION
 curl -i -X POST --url http://localhost:8001/services/UniqueIDValidation/routes --data 'hosts[]=unique-id.com'
+
+--CREATES LOAD ACCOUNT SERVICE
+curl -i -X POST --url http://localhost:8001/services/ --data 'name=LoadAccountService' --data 'url=https://zhx0o69m0i.execute-api.us-east-1.amazonaws.com/default/LoadAccountService'
+
+--ADDS ROUTE FOR ACCOUNT LOADING
+curl -i -X POST --url http://localhost:8001/services/LoadAccountService/routes --data 'hosts[]=load-account.com'
+
+--CREATES BLACKLIST USER SERVICE
+curl -i -X POST --url http://localhost:8001/services/ --data 'name=BlacklistUserService' --data 'url=https://z62m3l4rh2.execute-api.us-east-1.amazonaws.com/default/BlackListUser'
+
+--ADDS ROUTE FOR USER BLACKLISTING
+curl -i -X POST --url http://localhost:8001/services/BlacklistUserService/routes --data 'hosts[]=blacklist-user.com'
+
+--CREATES USER REMOVAL SERVICE
+curl -i -X POST --url http://localhost:8001/services/ --data 'name=UserRemovalService' --data 'url=https://hbjv9al4p4.execute-api.us-east-1.amazonaws.com/default/UserRemoval'
+
+--ADDS ROUTE FOR USER REMOVAL
+curl -i -X POST --url http://localhost:8001/services/UserRemovalService/routes --data 'hosts[]=remove-user.com'
+
+
+
+

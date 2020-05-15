@@ -1,11 +1,6 @@
 package org.camunda.bpm.pools.userRegister;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -31,7 +26,7 @@ public class UserRegisterWorker {
 		uniqueClient.subscribe("user-exists").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
 			String token = (String) externalTask.getVariable("token");
-			//morada e nif
+
 			try {
 				LOGGER.info("Unique ID Validation Started");
 				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
@@ -75,10 +70,11 @@ public class UserRegisterWorker {
 			String lastName = (String) externalTask.getVariable("lastName");
 			String planType = (String) externalTask.getVariable("planType");
 			String balance = (String) externalTask.getVariable("balance");
-			//morada e nif
+			String address = (String) externalTask.getVariable("address");
+
 			Boolean validData;
 			
-			if(isValidString(email) && isValidString(firstName) && isValidString(lastName) && isValidString(planType) && Integer.parseInt(balance) > 0) {
+			if(isValidString(email) && isValidString(firstName) && isValidString(lastName) && isValidString(planType) && isValidString(address) && Integer.parseInt(balance) > 0) {
 				LOGGER.info("Data is valid");
 				validData = true;
 			}
@@ -94,7 +90,6 @@ public class UserRegisterWorker {
 		nifValidationClient.subscribe("validate-nif").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
 			String nif = (String) externalTask.getVariable("nif");
-			//morada e nif
 			
 			try {
 				LOGGER.info("NIF Validation Started");
@@ -108,14 +103,9 @@ public class UserRegisterWorker {
 					String responseStr = EntityUtils.toString(responseEntity); 
 					JSONParser parser = new JSONParser();
 					JSONObject responseObj = (JSONObject) ((JSONObject) parser.parse(responseStr));
-					String responseValue = (String) responseObj.get("result");
-					LOGGER.info("Valid NIF:"+responseValue);
-					if(responseValue.equals("success")){
-						externalTaskService.complete(externalTask , Collections.singletonMap("validNif", true));
-					}
-					else {
-						externalTaskService.complete(externalTask , Collections.singletonMap("validNif", false));
-					}
+					Boolean responseValue = (Boolean) responseObj.get("nif_validation");
+					LOGGER.info("Valid NIF:"+responseValue.toString());
+					externalTaskService.complete(externalTask , Collections.singletonMap("validNif", responseValue));
 				}
 				
 			} catch (ClientProtocolException e) {
@@ -142,12 +132,13 @@ public class UserRegisterWorker {
 			String lastName = (String) externalTask.getVariable("lastName");
 			String planType = (String) externalTask.getVariable("planType");
 			String balance = (String) externalTask.getVariable("balance");
+			String address = (String) externalTask.getVariable("address");
 			try {
 				LOGGER.info("Creation Started");
 				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "new-user.com");
-				String query = "{\"id\":\""+token+"\",\"nif\":\""+nif+"\",\"email\":\""+ email +"\",\"planType\":\""+planType+"\",\"firstName\":\""+firstName+"\",\"lastName\":\""+lastName+"\",\"balance\":\""+balance+"\"}";
+				String query = "{\"id\":\""+token+"\",\"nif\":\""+nif+"\",\"address\":\""+address+"\",\"email\":\""+ email +"\",\"planType\":\""+planType+"\",\"firstName\":\""+firstName+"\",\"lastName\":\""+lastName+"\",\"balance\":\""+balance+"\"}";
 				StringEntity Entity = new StringEntity(query);
 				postRequest.setEntity(Entity);
 				HttpEntity base = postRequest.getEntity();

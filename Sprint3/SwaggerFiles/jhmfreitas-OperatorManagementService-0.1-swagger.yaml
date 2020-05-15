@@ -1,0 +1,189 @@
+openapi: 3.0.1
+info:
+  title: Operator Management Service API
+  description: This document contains information about Operator Management Service Interface
+  version: '0.1'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: 'http://ec2-54-196-98-231.compute-1.amazonaws.com:9997'
+tags:
+  - name: Operator
+    description: Operator related operations
+  - name: Service
+    description: Service related operations
+  - name: Discount
+    description: Discount related operations
+paths:
+  /operatorManagementService/createOperator:
+    post:
+      tags:
+        - Operator
+      description: This method creates a new operator in the database and a new topic for that operator. For operators of type T1 and T2 the price must be null
+      parameters:
+        - name: SOAPAction
+          in: header
+          allowEmptyValue: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          text/xml; charset=UTF-8:
+            schema:
+              type: string
+            examples:
+              '0':
+                value: |-
+                  <soapenv:Envelope
+                      xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                      xmlns:oper="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService">
+                      <soapenv:Header/>
+                      <soapenv:Body>
+                          <oper:createOperator>
+                              <operator>Carris</operator>
+                              <operatorType>T0</operatorType>
+                              <price>2.10</price>
+                          </oper:createOperator>
+                      </soapenv:Body>
+                  </soapenv:Envelope>
+              '1':
+                value: |-
+                  <soapenv:Envelope
+                      xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                      xmlns:oper="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService">
+                      <soapenv:Header/>
+                      <soapenv:Body>
+                          <oper:createOperator>
+                              <operator>Taxify</operator>
+                              <operatorType>T1</operatorType>
+                              <price>null</price>
+                          </oper:createOperator>
+                      </soapenv:Body>
+                  </soapenv:Envelope>
+      responses:
+        '200':
+          description: operation succeeded
+          content: 
+            text/xml; charset=UTF-8:
+              schema:
+                type: string
+              examples:
+                '0':
+                  value: |-
+                    <?xml version='1.0' encoding='UTF-8'?>
+                    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+                      <S:Body>
+                        <ns2:createOperatorResponse xmlns:ns2="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService">
+                          <return>Success</return>
+                        </ns2:createOperatorResponse>
+                      </S:Body>
+                    </S:Envelope>
+                '1':
+                  value: |-
+                    <?xml version='1.0' encoding='UTF-8'?>
+                    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+                      <S:Body>
+                        <ns2:createOperatorResponse xmlns:ns2="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService">
+                          <return>Failure</return>
+                        </ns2:createOperatorResponse>
+                      </S:Body>
+                    </S:Envelope>
+  /operatorManagementService/startService:
+    post:
+      tags:
+        - Service
+      description: This method starts the service (No method will work if this method is not executed before)
+      parameters:
+        - name: SOAPAction
+          in: header
+          allowEmptyValue: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          text/xml; charset=UTF-8:
+            schema:
+              type: string
+            examples:
+              '0':
+                value: |-
+                  <soapenv:Envelope
+                      xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                      xmlns:oper="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService">
+                      <soapenv:Header/>
+                      <soapenv:Body>
+                          <oper:startService/>
+                      </soapenv:Body>
+                  </soapenv:Envelope>
+      responses:
+        '200':
+          description: operation succeeded
+  /operatorManagementService/createDiscount:
+    post:
+      tags:
+        - Discount
+      description: This method creates a new discount 
+      parameters:
+        - name: SOAPAction
+          in: header
+          allowEmptyValue: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          text/xml; charset=UTF-8:
+            schema:
+              type: string
+            examples:
+              '0':
+                value: |-
+                  <soapenv:Envelope
+                    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                    xmlns:oper="http://ec2-3-80-233-61.compute-1.amazonaws.com:9997/operatorManagementService">
+                    <soapenv:Header/>
+                    <soapenv:Body>
+                        <oper:createDiscount>
+                            <operators>Uber</operators>
+                            <discountId>Uber-1-12</discountId>
+                            <discountName>Dia do Ambiente</discountName>
+                            <value>20</value>
+                            <beginAt>2020-06-05 00:00:0.000</beginAt>
+                            <endAt>2020-06-05 23:59:59.999</endAt>
+                            <planTypes>generalPass</planTypes>
+                            <planTypes>pre-paid</planTypes>
+                        </oper:createDiscount>
+                      </soapenv:Body>
+                  </soapenv:Envelope>
+      responses:
+        '200':
+          description: operation succeeded
+          content: 
+            text/xml; charset=UTF-8:
+              schema:
+                type: string
+              examples:
+                '0':
+                  value: |-
+                    <?xml version='1.0' encoding='UTF-8'?>
+                    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+                      <S:Body>
+                        <ns2:createDiscountResponse xmlns:ns2="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService">
+                          <return>Success</return>
+                        </ns2:createDiscountResponse>
+                      </S:Body>
+                    </S:Envelope>
+                '1':
+                  value: |-
+                    <?xml version='1.0' encoding='UTF-8'?>
+                    <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+                      <S:Body>
+                        <ns2:createDiscountResponse xmlns:ns2="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService">
+                          <return>Failure</return>
+                        </ns2:createDiscountResponse>
+                      </S:Body>
+                    </S:Envelope>
+      servers:
+        - url: 'http://ec2-54-196-98-231.compute-1.amazonaws.com:9997'
+    servers:
+      - url: 'http://ec2-54-196-98-231.compute-1.amazonaws.com:9997'
