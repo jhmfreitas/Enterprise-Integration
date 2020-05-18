@@ -12,7 +12,7 @@
       <bpmn:incoming>Flow_0lva4hv</bpmn:incoming>
       <bpmn:outgoing>Flow_0e2agql</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_1gyky55">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT60S</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT30S</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_06v0e00" sourceRef="Activity_0j17sbl" targetRef="Gateway_077puag" />
@@ -22,7 +22,7 @@
       <bpmn:incoming>Flow_0ld9e5z</bpmn:incoming>
       <bpmn:outgoing>Flow_0h46uie</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0dxn6ve">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT60S</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT30S</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:eventBasedGateway id="Gateway_077puag">
@@ -73,7 +73,7 @@
       <bpmn:incoming>Flow_0f2u5f9</bpmn:incoming>
       <bpmn:outgoing>Flow_0g2147m</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_1wow0rk">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT60S</bpmn:timeDuration>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT30S</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_0f2u5f9" sourceRef="Gateway_00zrvzk" targetRef="Event_177jzom" />

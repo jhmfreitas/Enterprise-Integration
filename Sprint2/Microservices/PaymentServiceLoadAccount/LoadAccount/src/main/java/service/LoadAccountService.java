@@ -41,12 +41,12 @@ public class LoadAccountService implements RequestStreamHandler {
 
 			JSONObject event = (JSONObject) parser.parse(reader);
 			
-			String token = new String();
+			String nif = new String();
 			String amount = new String();
 			if (event.get("body") != null) {
 				JSONObject bodyjson = (JSONObject) parser.parse((String) event.get("body"));
-				if (bodyjson.get("id") != null)
-					token = (String) bodyjson.get("id");
+				if (bodyjson.get("nif") != null)
+					nif = (String) bodyjson.get("nif");
 				if (bodyjson.get("amount") != null)
 					amount = (String) bodyjson.get("amount");
 			}
@@ -59,16 +59,16 @@ public class LoadAccountService implements RequestStreamHandler {
 			if (bd_ok == true && event != null) {
 				PreparedStatement s;
 				int totalAmount = 0;
-				s = conn.prepareStatement("select * from userBalance where token = ?");
-				s.setString(1, token);
+				s = conn.prepareStatement("select * from userBalance where nif = ?");
+				s.setString(1, nif);
 				resultSet = s.executeQuery();
 				while (resultSet.next()) {
 					logger.log("Found entry of this user!\n");
 					balance = resultSet.getInt("balance");
 					totalAmount = Integer.parseInt(amount) + balance;
-					s = conn.prepareStatement("update userBalance set balance = ? where token = ?");
+					s = conn.prepareStatement("update userBalance set balance = ? where nif = ?");
 					s.setInt(1, totalAmount);
-					s.setString(2, token);
+					s.setString(2, nif);
 					resultSet = s.executeQuery();
 					
 					s.close();

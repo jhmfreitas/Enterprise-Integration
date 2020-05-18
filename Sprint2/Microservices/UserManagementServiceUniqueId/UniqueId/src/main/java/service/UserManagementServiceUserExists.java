@@ -19,7 +19,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
-public class UserManagementServiceUniqueId implements RequestStreamHandler {
+public class UserManagementServiceUserExists implements RequestStreamHandler {
 
 	@Override
 	public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
@@ -41,11 +41,11 @@ public class UserManagementServiceUniqueId implements RequestStreamHandler {
 
 			JSONObject event = (JSONObject) parser.parse(reader);
 			
-			String token = new String();
+			String nif = new String();
 			if (event.get("body") != null) {
 				JSONObject bodyjson = (JSONObject) parser.parse((String) event.get("body"));
-				if (bodyjson.get("id") != null)
-					token = (String) bodyjson.get("id");
+				if (bodyjson.get("nif") != null)
+					nif = (String) bodyjson.get("nif");
 			}
 
 			logger.log("start:" + (String) event.toString() + "\n");
@@ -55,11 +55,11 @@ public class UserManagementServiceUniqueId implements RequestStreamHandler {
 
 			if (bd_ok == true && event != null) {
 				PreparedStatement s;
-				s = conn.prepareStatement("select * from userInfo where token = ?");
-				s.setString(1, token);
+				s = conn.prepareStatement("select * from userInfo where nif = ?");
+				s.setString(1, nif);
 				resultSet = s.executeQuery();
 				while (resultSet.next()) {
-					logger.log("Repeated ID!\n");
+					logger.log("Repeated User!\n");
 					validData = "false";
 				}
 
@@ -75,7 +75,7 @@ public class UserManagementServiceUniqueId implements RequestStreamHandler {
 
 			responseBody.put("message", validData);
 			JSONObject headerJson = new JSONObject();
-			headerJson.put("x-custom-header", "Unique ID Validation");
+			headerJson.put("x-custom-header", "Unique User Validation");
 			responseJson.put("statusCode", 200);
 			responseJson.put("headers", headerJson);
 			responseJson.put("body", responseBody.toString());

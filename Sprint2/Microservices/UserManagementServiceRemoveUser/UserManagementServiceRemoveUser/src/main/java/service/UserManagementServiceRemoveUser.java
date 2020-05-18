@@ -41,13 +41,13 @@ public class UserManagementServiceRemoveUser implements RequestStreamHandler {
 
 			JSONObject event = (JSONObject) parser.parse(reader);
 			logger.log("event: " + event + "\n");
-			String token = new String();
+			String nif = new String();
 			if (event.get("body") != null) {
 				JSONObject bodyjson = (JSONObject) parser.parse((String) event.get("body"));
 				logger.log("body: " + bodyjson + "\n");
-				if (bodyjson.get("id") != null) {
-					token = (String) bodyjson.get("id");
-					logger.log("id: " + token + "\n");
+				if (bodyjson.get("nif") != null) {
+					nif = (String) bodyjson.get("nif");
+					logger.log("nif: " + nif + "\n");
 				}
 			}
 
@@ -58,15 +58,15 @@ public class UserManagementServiceRemoveUser implements RequestStreamHandler {
 				int resultSet;
 				
 				PreparedStatement s;
-				s = conn.prepareStatement("delete from userInfo where token = ?");
-				s.setString(1, token);
+				s = conn.prepareStatement("delete from userInfo where nif = ?");
+				s.setString(1, nif);
 				resultSet = s.executeUpdate();
 				s.close();
 				
 				logger.log("Delete from userInfo:" + resultSet + "\n");
 				
-				s = conn.prepareStatement("delete from userBalance where token = ?");
-				s.setString(1, token);
+				s = conn.prepareStatement("delete from userBalance where nif = ?");
+				s.setString(1, nif);
 				resultSet = s.executeUpdate();
 				s.close();
 				

@@ -2,4 +2,4 @@ curl -s --user 'api:2a63cc762aa63572a44048314f741a38-3e51f8d2-6db13053'     http
 
 curl -H "Content-Type: application/json" -X POST --data @userLoadsAccount.json  http://192.168.99.100:8080/engine-rest/message
 
-curl -H "Content-Type: application/json" -X POST -d '{"variables": {"fromEmail": {"value":"Maas Operator <mailgun@sandbox45a4ec4aa29243c78be39889e9338d42.mailgun.org>"},"email":{"value":"jhmffreitas@gmail.com"},"token": {"value":"id45752"} } }' http://192.168.99.100:8080/engine-rest/process-definition/key/dunning-process/start
+curl -H "Content-Type: application/json" -X POST -d '{"variables": {"fromEmail": {"value":"Maas Operator <mailgun@sandbox45a4ec4aa29243c78be39889e9338d42.mailgun.org>"},"email":{"value":"jhmffreitas@gmail.com"},"nif": {"value":"215963548"} } }' http://192.168.99.100:8080/engine-rest/process-definition/key/dunning-process/start

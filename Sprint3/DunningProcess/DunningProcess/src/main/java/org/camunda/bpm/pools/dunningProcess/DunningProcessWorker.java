@@ -30,14 +30,14 @@ public class DunningProcessWorker {
 				.asyncResponseTimeout(10000).build();
 		blacklistClient.subscribe("blacklist-user").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
-			String token = (String) externalTask.getVariable("token");
+			String nif = (String) externalTask.getVariable("nif");
 			
 			try {
 				LOGGER.info("Blacklist User Started!");
 				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "blacklist-user.com");
-				String query = "{\"id\":\""+token+"\",\"operation\":\"blacklist\"}";
+				String query = "{\"nif\":\""+nif+"\",\"operation\":\"blacklist\"}";
 				StringEntity Entity = new StringEntity(query);
 				postRequest.setEntity(Entity);
 				HttpEntity base = postRequest.getEntity();
@@ -50,7 +50,7 @@ public class DunningProcessWorker {
 					JSONParser parser = new JSONParser();
 					JSONObject responseObj = (JSONObject) ((JSONObject) parser.parse(responseStr));
 					String responseValue = (String) responseObj.get("message");
-					LOGGER.info("Blacklisted ID:"+responseValue);
+					LOGGER.info("Blacklisted user:"+responseValue);
 					externalTaskService.complete(externalTask);
 				}
 			} catch (ClientProtocolException e) {
@@ -68,14 +68,14 @@ public class DunningProcessWorker {
 				.asyncResponseTimeout(10000).build();
 		undoBlacklistClient.subscribe("undo-blacklist").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
-			String token = (String) externalTask.getVariable("token");
+			String nif = (String) externalTask.getVariable("nif");
 			
 			try {
 				LOGGER.info("Undo Blacklist Started!");
 				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "blacklist-user.com");
-				String query = "{\"id\":\""+token+"\",\"operation\":\"undo-blacklist\"}";
+				String query = "{\"nif\":\""+nif+"\",\"operation\":\"undo-blacklist\"}";
 				StringEntity Entity = new StringEntity(query);
 				postRequest.setEntity(Entity);
 				HttpEntity base = postRequest.getEntity();
@@ -106,14 +106,14 @@ public class DunningProcessWorker {
 				.asyncResponseTimeout(10000).build();
 		removeUserClient.subscribe("remove-user").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
-			String token = (String) externalTask.getVariable("token");
+			String nif = (String) externalTask.getVariable("nif");
 			
 			try {
 				LOGGER.info("Remove User Started!");
 				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "remove-user.com");
-				String query = "{\"id\":\""+token+"\"}";
+				String query = "{\"nif\":\""+nif+"\"}";
 				StringEntity Entity = new StringEntity(query);
 				postRequest.setEntity(Entity);
 				HttpEntity base = postRequest.getEntity();

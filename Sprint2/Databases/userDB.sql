@@ -6,35 +6,35 @@ USE userdb;
 DROP TABLE IF EXISTS userInfo;
 CREATE TABLE userInfo
 (
-    token VARCHAR(100) NOT NULL,
+    id INT NOT NULL AUTO_INCREMENT,
     nif VARCHAR(9) UNIQUE NOT NULL,
     email VARCHAR(50) NOT NULL,
     firstName VARCHAR(20) NOT NULL,
     lastName VARCHAR(20) NOT NULL,
     planType VARCHAR(20) NOT NULL,
     address VARCHAR(100) NOT NULL,
-    CONSTRAINT pk_userInfo PRIMARY KEY (token)
+    CONSTRAINT pk_userInfo PRIMARY KEY (id)
 );
 
 DROP TABLE IF EXISTS userBalance;
 CREATE TABLE userBalance
 (
-    token VARCHAR(100) NOT NULL,
+    nif VARCHAR(9) NOT NULL,
     balance INT NOT NULL,
     blackListed BOOLEAN NOT NULL,
-    CONSTRAINT pk_userBalance PRIMARY KEY (token),
-    CONSTRAINT fk_userInfo_userBalance FOREIGN KEY (token) REFERENCES userInfo(token) on DELETE CASCADE
+    CONSTRAINT pk_userBalance PRIMARY KEY (nif),
+    CONSTRAINT fk_userInfo_userBalance FOREIGN KEY (nif) REFERENCES userInfo(nif) on DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS history;
 CREATE TABLE history
 (
     tripID VARCHAR(100) NOT NULL,
-    token VARCHAR(100) NOT NULL,
+    id INT NOT NULL,
     operatorName VARCHAR(30) NOT NULL,
     time_stamp DATETIME NOT NULL,
     CONSTRAINT pk_history PRIMARY KEY (tripID, time_stamp),
-    CONSTRAINT fk_userInfo_history FOREIGN KEY (token) REFERENCES userInfo(token) on DELETE CASCADE
+    CONSTRAINT fk_userInfo_history FOREIGN KEY (id) REFERENCES userInfo(id) on DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS T0_History;

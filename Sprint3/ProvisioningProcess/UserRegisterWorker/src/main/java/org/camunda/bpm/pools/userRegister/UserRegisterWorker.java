@@ -25,14 +25,13 @@ public class UserRegisterWorker {
 				.asyncResponseTimeout(10000).build();
 		uniqueClient.subscribe("user-exists").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
-			String token = (String) externalTask.getVariable("token");
-
+			String nif = (String) externalTask.getVariable("nif");
 			try {
-				LOGGER.info("Unique ID Validation Started");
+				LOGGER.info("Unique User Validation Started");
 				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "unique-id.com");
-				String query = "{\"id\":\""+token+"\"}";
+				String query = "{\"nif\":\""+nif+"\"}";
 				StringEntity Entity = new StringEntity(query);
 				postRequest.setEntity(Entity);
 				HttpEntity base = postRequest.getEntity();
@@ -45,7 +44,7 @@ public class UserRegisterWorker {
 					JSONParser parser = new JSONParser();
 					JSONObject responseObj = (JSONObject) ((JSONObject) parser.parse(responseStr));
 					String responseValue = (String) responseObj.get("message");
-					LOGGER.info("Unique ID:"+responseValue);
+					LOGGER.info("Unique User:"+responseValue);
 					externalTaskService.complete(externalTask , Collections.singletonMap("uniqueID", Boolean.valueOf(responseValue)));
 				}
 			} catch (ClientProtocolException e) {
@@ -126,7 +125,6 @@ public class UserRegisterWorker {
 		registrationClient.subscribe("create-user").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
 			String nif = (String) externalTask.getVariable("nif");
-			String token = (String) externalTask.getVariable("token");
 			String email = (String) externalTask.getVariable("email");
 			String firstName = (String) externalTask.getVariable("firstName");
 			String lastName = (String) externalTask.getVariable("lastName");
@@ -138,7 +136,7 @@ public class UserRegisterWorker {
 				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "new-user.com");
-				String query = "{\"id\":\""+token+"\",\"nif\":\""+nif+"\",\"address\":\""+address+"\",\"email\":\""+ email +"\",\"planType\":\""+planType+"\",\"firstName\":\""+firstName+"\",\"lastName\":\""+lastName+"\",\"balance\":\""+balance+"\"}";
+				String query = "{\"nif\":\""+nif+"\",\"address\":\""+address+"\",\"email\":\""+ email +"\",\"planType\":\""+planType+"\",\"firstName\":\""+firstName+"\",\"lastName\":\""+lastName+"\",\"balance\":\""+balance+"\"}";
 				StringEntity Entity = new StringEntity(query);
 				postRequest.setEntity(Entity);
 				HttpEntity base = postRequest.getEntity();
