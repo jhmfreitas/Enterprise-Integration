@@ -1,10 +1,10 @@
 <soapenv:Envelope
     xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-    xmlns:oper="http://ec2-34-235-169-157.compute-1.amazonaws.com:9997/operatorManagementService">
+    xmlns:oper="http://ec2-54-80-154-131.compute-1.amazonaws.com:9997/operatorManagementService">
     <soapenv:Header/>
     <soapenv:Body>
         <oper:createOperator>
-            <operator>CP2</operator>
+            <operator>CP</operator>
             <operatorType>T0</operatorType>
             <price>2.45</price>
         </oper:createOperator>

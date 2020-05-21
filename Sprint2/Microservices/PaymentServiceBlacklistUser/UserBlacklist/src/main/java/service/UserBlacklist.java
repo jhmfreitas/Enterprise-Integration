@@ -41,12 +41,12 @@ public class UserBlacklist implements RequestStreamHandler{
 
 			JSONObject event = (JSONObject) parser.parse(reader);
 			
-			String nif = new String();
+			String id = new String();
 			String operation = new String();
 			if (event.get("body") != null) {
 				JSONObject bodyjson = (JSONObject) parser.parse((String) event.get("body"));
-				if (bodyjson.get("nif") != null)
-					nif = (String) bodyjson.get("nif");
+				if (bodyjson.get("id") != null)
+					id = (String) bodyjson.get("id");
 				if (bodyjson.get("operation") != null)
 					operation = (String) bodyjson.get("operation");
 			}
@@ -57,9 +57,9 @@ public class UserBlacklist implements RequestStreamHandler{
 
 			if (bd_ok == true && event != null && operation.equals("blacklist")) {
 				PreparedStatement s;
-				s = conn.prepareStatement("update userBalance set blackListed = ? where nif = ?");
+				s = conn.prepareStatement("update userBalance set blackListed = ? where id = ?");
 				s.setBoolean(1, true);
-				s.setString(2, nif);
+				s.setString(2, id);
 				resultSet = s.executeUpdate();
 
 				s.close();
@@ -69,9 +69,9 @@ public class UserBlacklist implements RequestStreamHandler{
 			} 
 			else if(bd_ok == true && event != null && operation.equals("undo-blacklist")){
 				PreparedStatement s;
-				s = conn.prepareStatement("update userBalance set blackListed = ? where nif = ?");
+				s = conn.prepareStatement("update userBalance set blackListed = ? where id = ?");
 				s.setBoolean(1, false);
-				s.setString(2, nif);
+				s.setString(2, id);
 				resultSet = s.executeUpdate();
 
 				s.close();

@@ -19,8 +19,8 @@ public class MaaSMessageProviderWithTokenControl {
 	static String providerName = null;
 	static String brokerList = "localhost:9092";
 	static String topic = null;
-	static ArrayList<String> tokens = new ArrayList<String>();
-	static ArrayList<Boolean> freetokens = new ArrayList<Boolean>();
+	static ArrayList<String> ids = new ArrayList<String>();
+	static ArrayList<Boolean> freeids = new ArrayList<Boolean>();
 	static int throughput = 10;
 	static String typeMessage = "JSON";
 	static ArrayList<String> Stations = new ArrayList<String>();
@@ -28,19 +28,19 @@ public class MaaSMessageProviderWithTokenControl {
 	private static boolean ValidateMessage(Message message)
 	{
 		
-	//	System.out.println(freetokens.toString());
+	//	System.out.println(freeids.toString());
 	//	System.out.println(message.toString());
 		
-		// se for checkin e token não usado então ok e marcar como usado
-		if ( (message.getOperation().compareTo("CheckIn")== 0) && (freetokens.get(message.getID()) == true) )
+		// se for checkin e id não usado então ok e marcar como usado
+		if ( (message.getOperation().compareTo("CheckIn")== 0) && (freeids.get(message.getID()) == true) )
 		{
-			freetokens.set(message.getID(), false);
+			freeids.set(message.getID(), false);
 			return (true);
 		}
-		// se for checkout e token usado então ok e marcar como não usado
-		else if ( (message.getOperation().compareTo("CheckOut")== 0) && (freetokens.get(message.getID()) == false) )
+		// se for checkout e id usado então ok e marcar como não usado
+		else if ( (message.getOperation().compareTo("CheckOut")== 0) && (freeids.get(message.getID()) == false) )
 		{
-			freetokens.set(message.getID(), true);
+			freeids.set(message.getID(), true);
 			return(true);
 		}
 		// qualquer outra hipotese return (false);
@@ -63,19 +63,19 @@ public class MaaSMessageProviderWithTokenControl {
 		if (type.compareTo("XML") == 0)
 			messageMetroCheckIn = 	"<" + providerName + ">" +
 										"<CheckIn>" +									
-										"<Token>@token@</Token>" +									
+										"<Id>@id@</Id>" +									
 										"<Station>@station@</Station>"+
 										"<Timestamp>@timestamp@</Timestamp>" +
 										"</CheckIn>" +
 										"</" + providerName + ">";
 		else		
 			messageMetroCheckIn = "{\"event\":{\"eventType\":\"t0-check-in\", \"operator\":\""+ providerName +"\", \"info\":{ "
-					+ "\"Token\": \"@token@\", " + "\"Station\": \"@station@\", " + "\"Timestamp\": \"@timestamp@\" " + "}"
+					+ "\"Id\": \"@id@\", " + "\"Station\": \"@station@\", " + "\"Timestamp\": \"@timestamp@\" " + "}"
 					+ "}" + "}";
 						 		
 		Random rand = new Random(); 
 		// Incondicional
-		int position = rand.nextInt(tokens.size());
+		int position = rand.nextInt(ids.size());
 		String timest = new Timestamp(System.currentTimeMillis()).toString();
 		int positionstation = rand.nextInt(Stations.size());
 		
@@ -83,9 +83,9 @@ public class MaaSMessageProviderWithTokenControl {
 		response.setOperation("CheckIn");
 		response.setStation(Stations.get(positionstation));
 		response.setTimeStamp(timest);
-		response.setToken(tokens.get(position));
+		response.setid(ids.get(position));
 		
-		response.setAsText(messageMetroCheckIn.replaceAll("@token@" , tokens.get(position)));
+		response.setAsText(messageMetroCheckIn.replaceAll("@id@" , ids.get(position)));
 		response.setAsText(response.getAsText().replaceAll("@timestamp@" , timest ));
 		response.setAsText(response.getAsText().replaceAll("@station@" , Stations.get(positionstation)));
 		
@@ -100,19 +100,19 @@ public class MaaSMessageProviderWithTokenControl {
 		if (type.compareTo("XML") == 0)
 			messageMetroCheckOut = 	"<" + providerName + ">" +
 										"<CheckOut>" +									
-										"<Token>@token@</Token>" +									
+										"<Id>@id@</Id>" +									
 										"<Station>@station@</Station>"+
 										"<Timestamp>@timestamp@</Timestamp>" +
 										"</CheckOut>" +
 										"</"+ providerName + ">";
 		else		
 			messageMetroCheckOut = "{\"event\":{\"eventType\":\"t0-check-out\", \"operator\":\"" + providerName
-					+ "\", \"info\":{ " + "\"Token\": \"@token@\", " + "\"Station\": \"@station@\", "
+					+ "\", \"info\":{ " + "\"Id\": \"@id@\", " + "\"Station\": \"@station@\", "
 					+ "\"Timestamp\": \"@timestamp@\" " + "}" + "}" + "}";
 						 		
 		Random rand = new Random();
 		
-		int position = rand.nextInt(tokens.size());
+		int position = rand.nextInt(ids.size());
 		String timest = new Timestamp(System.currentTimeMillis()).toString();
 		int positionstation = rand.nextInt(Stations.size());
 		
@@ -120,11 +120,11 @@ public class MaaSMessageProviderWithTokenControl {
 		response.setOperation("CheckOut");
 		response.setStation(Stations.get(positionstation));
 		response.setTimeStamp(timest);
-		response.setToken(tokens.get(position));
+		response.setid(ids.get(position));
 		
 		
 		// Incondicional
-		response.setAsText(messageMetroCheckOut.replaceAll("@token@" , tokens.get(position)));
+		response.setAsText(messageMetroCheckOut.replaceAll("@id@" , ids.get(position)));
 		response.setAsText(response.getAsText().replaceAll("@timestamp@" , timest ));
 		response.setAsText(response.getAsText().replaceAll("@station@" , Stations.get(positionstation)));
 		
@@ -137,7 +137,7 @@ public class MaaSMessageProviderWithTokenControl {
 		System.out.println("--provider-name=" + providerName + "\n" +
 						   "--broker-list=" + brokerList + "\n" +
 						   "--topic=" + topic + "\n" +
-						   "--token-list=" + tokens.toString() + "\n" +
+						   "--id-list=" + ids.toString() + "\n" +
 						   "--throughput=" +  throughput + "\n" +		
 						   "--typeMessage=" + typeMessage);
 	}
@@ -146,7 +146,7 @@ public class MaaSMessageProviderWithTokenControl {
 	{
 		boolean result = true;
 		boolean mandatorytopic = false;
-		boolean mandatorytokenlist = false;
+		boolean mandatoryidlist = false;
 		boolean mandatoryprovidername = false;
 		
 		for (int i=0 ; i < cabecalho.length ; i=i+2)
@@ -164,15 +164,15 @@ public class MaaSMessageProviderWithTokenControl {
 					topic = cabecalho[i+1];
 					mandatorytopic = true;
 			}
-			else if (cabecalho[i].compareTo("--token-list") == 0) 
+			else if (cabecalho[i].compareTo("--id-list") == 0) 
 			{
 				String[] list = cabecalho[i+1].split(",");
-				for (String token:list) 
+				for (String id:list) 
 				{
-						tokens.add(token);
-						freetokens.add(new Boolean(true));
+						ids.add(id);
+						freeids.add(new Boolean(true));
 				}
-				mandatorytokenlist = true;
+				mandatoryidlist = true;
 			}
 			else if (cabecalho[i].compareTo("--throughput") == 0) throughput = Integer.valueOf(cabecalho[i+1]).intValue();
 			else if (cabecalho[i].compareTo("--typeMessage") == 0) typeMessage = cabecalho[i+1];
@@ -182,10 +182,10 @@ public class MaaSMessageProviderWithTokenControl {
 				return(false);
 			}
 		}		
-		if (mandatorytopic && mandatorytokenlist && mandatoryprovidername)	return(result);
+		if (mandatorytopic && mandatoryidlist && mandatoryprovidername)	return(result);
 		else if (mandatoryprovidername == false) System.out.println ("Provider name argument is mandatory!");
 		else if (mandatorytopic == false) System.out.println ("Topic argument is mandatory!");
-		else System.out.println ("Token list argument is mandatory!");
+		else System.out.println ("Id list argument is mandatory!");
 			
 		return (false);
 	}
@@ -193,12 +193,12 @@ public class MaaSMessageProviderWithTokenControl {
 	public static void main(String[] args) {
 
 		String usage = "The usage of Provider Producer for MaaS Simulator is the following.\n" 
-				+ "MaaSMessageProviderWithTokenControl --provider-name <Name to assign to the provider> --broker-list <KafkaBrokerList with Ports> --topic <topic> --token-list <token-list> --throughput <value> --typeMessage <value>\n"
+				+ "MaaSMessageProviderWithTokenControl --provider-name <Name to assign to the provider> --broker-list <KafkaBrokerList with Ports> --topic <topic> --id-list <id-list> --throughput <value> --typeMessage <value>\n"
 				+ "where, \n"
 				+ "--provider-name: is the name of the provider and is mandatory\n"
 				+ "--broker-list: is a broker list with ports (e.g.: kafka02.example.com:9092,kafka03.example.com:9092) and the default value is localhost:9092\n"
 				+ "--topic: is the kafka topic to be provisioned and is mandatory\n"
-				+ "--token-list: is a list of client tokens (e.g.: eudij3674fgo,dhjsyuyfdhi3,djkfjd8) and is mandatory\n"
+				+ "--id-list: is a list of client ids (e.g.: eudij3674fgo,dhjsyuyfdhi3,djkfjd8) and is mandatory\n"
 				+ "--throughput: is the approximate maximum messages to be produced by minute and the default value is 10\n"
 				+ "--typeMessage: is the type of message to be produced: JSON or XML, default value is JSON.\n";
 		

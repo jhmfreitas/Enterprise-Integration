@@ -31,20 +31,21 @@ import kafka.utils.ZKStringSerializer$;
 import kafka.utils.ZkUtils;
 
 //Service Implementation
-@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-34-235-169-157.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementService")
+//@WebService(portName = "OperatorManagementServicePort",serviceName = "OperatorManagementService",targetNamespace="http://ec2-54-80-154-131.compute-1.amazonaws.com:9997/operatorManagementService",endpointInterface = "Webservice.OperatorManagementService")
+@WebService(endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-34-235-169-157.compute-1.amazonaws.com";
+	static String AWSIP = "ec2-54-80-154-131.compute-1.amazonaws.com";
 	static String AWSDBIP = "operatordb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
 	static KafkaProducer<String, String> producer;
 	static KafkaConsumer<String, String> consumer;
 	static Connection conn = null;
 	
 	public OperatorManagementServiceImpl() {
-	
+		//startService();
 	}
 	private int addOperatorTopic(String operatorName, String operatorType){
 		
-		String zookeeperConnect = AWSIP + ":2181," + AWSIP +":2182," + AWSIP +":2183";
+		String zookeeperConnect = AWSIP + ":2181";
 		int sessionTimeoutMs = 10 * 1000;
 		int connectionTimeoutMs = 8 * 1000;
 		
@@ -90,7 +91,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			
 			//Prepare consumer
 			Properties props = new Properties();
-			props.put("bootstrap.servers", AWSIP + ":9093," + AWSIP + ":9094," + AWSIP + ":9095");
+			props.put("bootstrap.servers", AWSIP + ":9092," + AWSIP + ":9093," + AWSIP + ":9094");
 			props.put("group.id", groupId);
 			props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 			props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -103,7 +104,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			
 			//Prepare producer
 			Properties propsConsumer = new Properties();
-			propsConsumer.put("bootstrap.servers", AWSIP + ":9093," + AWSIP + ":9094," + AWSIP + ":9095");
+			propsConsumer.put("bootstrap.servers", AWSIP + ":9092," + AWSIP + ":9093," + AWSIP + ":9094");
 			propsConsumer.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
 			propsConsumer.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer");
 			producer = new KafkaProducer<String, String>(propsConsumer);
@@ -149,9 +150,8 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		
 	private void processEvent(JSONObject extractedEvent, String topic) {
 		String eventType = (String) extractedEvent.get("eventType");
-		
-		JSONObject infojson = (JSONObject) extractedEvent.get("info");
 		System.out.println("processEvent(eventType):" + eventType + "\n");
+		JSONObject infojson = (JSONObject) extractedEvent.get("info");
 		System.out.println("processEvent(info):" + extractedEvent.get("info") + "\n");
 		
 		switch(eventType) {
@@ -179,14 +179,14 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		String operatorName = (String) infojson.get("operatorName");
 		String timeStamp = (String) infojson.get("timeStamp");
 		String planType = (String) infojson.get("planType");
-		String token = (String) infojson.get("token");
+		String id = (String) infojson.get("id");
 		
-		processTripCostEvent(baseCostString, operatorName, timeStamp, planType, token);
+		processTripCostEvent(baseCostString, operatorName, timeStamp, planType, id);
 	}
 	
 	
 	public int processTripCostEvent(String baseCostString, String operatorName, String timeStamp, String planType,
-			String token) {
+			String id) {
 		float discount = getDiscount(planType, timeStamp, operatorName);
 		
 		if(discount == -1) {
@@ -196,12 +196,14 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		if(baseCostString.equals("null")) {
 			System.out.println("processTripCostEvent: basecost is null -> " + baseCostString + "\n");
 			baseCost = getOperatorBaseCost(operatorName);
+			System.out.println("BaseCost:" + baseCost  + "\n");
 		}else {
 			System.out.println("processTripCostEvent: basecost is -> " + baseCostString + "\n");
 			baseCost = Float.valueOf(baseCostString);
+			System.out.println("BaseCost:" + baseCost  + "\n");
 		}
 		float debitAmount = baseCost * (1.0f - discount);
-		produceDebitEvent(token, planType, debitAmount);
+		produceDebitEvent(id, planType, debitAmount);
 		
 		return 0;
 	}
@@ -232,7 +234,6 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		System.out.println("getDiscount : Start searching for discount\n");
 		PreparedStatement s;
 		ResultSet resultSet;
-		float discountValue = 1;
 		try {
 			s = conn.prepareStatement("select value from discount inner join operator_discount on discount.discountId = operator_discount.discountId inner join discount_planType on discount.discountId = discount_planType.discountId where beginAt <= ? <= endAt and operatorName = ? and plan=?");
 			s.setString(1, timestamp);
@@ -253,14 +254,15 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		    s.close();
 		    resultSet.close();
 		    if(discountValueAux != 0){
-		    	discountValue = discountValueAux/100.0f;
+		    	System.out.println("Discount Found! :" + discountValueAux/100.0f + "\n");
+		    	return discountValueAux/100.0f;
 		    }
 		} catch (SQLException e) {
 			System.out.println("Error : Looking for discount ->" + e.toString() + "\n");
 			return -1;
 		}
-		
-		return discountValue;
+		System.out.println("getDiscount : No discount found\n");
+		return 0;
 	}
 	
 	private void createOperatorFromJson(String operator, JSONObject infojson){
@@ -393,9 +395,9 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
         return 0;
 	}
 	
-	private void produceDebitEvent(String token, String planType, float amount) {
+	private void produceDebitEvent(String id, String planType, float amount) {
         String event = "{\"event\":{\"eventType\":\"debit\", \"info\":{ " +
-				"\"token\": \"" + token + "\", "+
+				"\"id\": \"" + id + "\", "+
 				"\"planType\": \"" + planType +"\", "+
 				"\"amount\": \"" + amount + "\" "+
 			"}"+
@@ -405,16 +407,6 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		ProducerRecord<String, String> record = new ProducerRecord<>("Debit", "DebitKey", event);
 		producer.send(record);
 		System.out.println("produceDebitEvent : Sent -> " + event + "\n");     	
-	}
-	
-	@Override
-	public String createTripCost(String baseCostString, String operatorName, String timeStamp, String planType,
-			String token) {
-		if(processTripCostEvent(baseCostString, operatorName, timeStamp, planType, token) == 0) {
-			return "Success";
-		}
-		
-		return "Failure";
 	}
 
 }

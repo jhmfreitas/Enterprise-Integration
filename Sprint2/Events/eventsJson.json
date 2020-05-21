@@ -5,7 +5,7 @@
     "event":{
         "eventType": "new-user",
         "info": {
-            "id": "69c594cfdeeaedd220",
+            "id": "1",
             "email": "user@gmail.com",
             "planType": "pre-paid", //or post-paid -> field used by payment service
             "firstName": "Paulo",
@@ -21,7 +21,7 @@
         "eventType": "trip-cost",
         "info": {
             "cost": "23",
-            "token": "69c594cfdeeaedd220",
+            "id": "1",
             "planType": "pre-paid",
             "operatorName": "Uber",
             "timeStamp": "2020-02-29 20:57:10.294"
@@ -34,7 +34,7 @@
     "event": {
         "eventType": "debit",
         "info": {
-            "token": "69c594cfdeeaedd220",
+            "id": "1",
             "planType": "pre-paid",
             "amount": "20"
         }
@@ -47,7 +47,7 @@
         "eventType": "t0-check-in",
         "operator": "Metro",
         "info": {
-            "Token": "t1",
+            "Id": "1",
             "Station": "Odivelas",
             "Timestamp": "2020-02-29 18:23:41.278"
         }
@@ -59,7 +59,7 @@
         "eventType": "t0-check-out",
         "operator": "Metro",
         "info": {
-            "Token": "t1",
+            "Id": "1",
             "Station": "Alameda",
             "Timestamp": "2020-02-29 18:23:47.718"
         }
@@ -72,7 +72,7 @@
         "eventType": "t1",
         "operator": "Uber",
         "info": {
-            "Token": "t2",
+            "Id": "1",
             "Price": "20.63",
             "Timestamp": "2020-02-29 19:45:58.638"
         }
@@ -85,7 +85,7 @@
         "eventType": "t2",
         "operator": "Gira",
         "info": {
-            "Token":"t1",
+            "Id": "1",
             "Time":"3600", -> just used for user history
             "Price": "12.60",
             "Timestamp":"2020-02-29 20: 57: 10.294"
@@ -131,31 +131,3 @@
         }
     }
 }
-
-
-<soapenv:Envelope
-    xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-    xmlns:oper="http://ec2-3-80-233-61.compute-1.amazonaws.com:9997/operatorManagementService">
-    <soapenv:Header/>
-    <soapenv:Body>
-        <oper:createTripCost>
-            <baseCostString>23</baseCostString>
-            <operatorName>Metro</operatorName>
-            <timeStamp>2020-06-5 20: 57: 10.294</timeStamp>
-            <planType>pre-paid</planType>
-            <token>jjdgdjs</token>
-        </oper:createTripCost>
-    </soapenv:Body>
-</soapenv:Envelope>
-
-<?xml version='1.0' encoding='UTF-8'?>
-<S:Envelope
-    xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
-    <S:Body>
-        <ns3:createTripCostResponse
-            xmlns:ns2="http://ec2-54-196-98-231.compute-1.amazonaws.com:9997/operatorManagementService"
-            xmlns:ns3="http://ec2-3-80-233-61.compute-1.amazonaws.com:9997/operatorManagementService">
-            <return>Success</return>
-        </ns3:createTripCostResponse>
-    </S:Body>
-</S:Envelope>

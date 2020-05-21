@@ -63,7 +63,7 @@ java -jar ProducerProvider2-0.0.1-SNAPSHOT.jar --provider-name GIRA --broker-lis
 
 ## Start Uber Producer
 In target folder:
-java -jar ProducerProvider2-0.0.1-SNAPSHOT.jar --provider-name Uber --broker-list <Public_DNS>:9093,<Public_DNS>:9094,<Public_DNS>:9095 --topic T1_Uber --token-list jjdgdjs --throughput 50 --typeMessage JSON
+java -jar ProducerProvider2-0.0.1-SNAPSHOT.jar --provider-name Uber --broker-list <Public_DNS>:9092,<Public_DNS>:9093,<Public_DNS>:9094 --topic T1_Uber --token-list 1 --throughput 1 --typeMessage JSON
 
 ## Start Metro Producer
 In target folder:

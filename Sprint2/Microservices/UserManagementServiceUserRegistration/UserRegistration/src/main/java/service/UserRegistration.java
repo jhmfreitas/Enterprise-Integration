@@ -63,10 +63,9 @@ public class UserRegistration implements RequestStreamHandler {
 
 				logger.log("Success: User inserted in User Info! \n");
 				
-				s = conn.prepareStatement("insert into userBalance values(?,?,?)");
-				s.setString(1, nif);
-				s.setInt(2, Integer.parseInt(balance));
-				s.setBoolean(3, false);
+				s = conn.prepareStatement("insert into userBalance values(default,?,?)");
+				s.setInt(1, Integer.parseInt(balance));
+				s.setBoolean(2, false);
 				int userBalanceValid = s.executeUpdate();
 				//s.close();
 

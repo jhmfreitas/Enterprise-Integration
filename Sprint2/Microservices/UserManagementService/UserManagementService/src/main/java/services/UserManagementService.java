@@ -31,9 +31,9 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 public class UserManagementService implements RequestStreamHandler {
-	String AWSDBIP = "userdb.cfergfluhibr.us-east-1.rds.amazonaws.com";
-	String AWSIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
-	String AWSOperatorIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
+	String AWSDBIP = "userdb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
+	String AWSIP = "ec2-54-80-154-131.compute-1.amazonaws.com";
+	//String AWSOperatorIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
 	String groupId = "UserManagementService";
 	KafkaProducer<String, String> producer;
 	Connection conn = null;
@@ -51,7 +51,7 @@ public class UserManagementService implements RequestStreamHandler {
 			boolean bd_ok = false;
 			try {
 				Class.forName("com.mysql.cj.jdbc.Driver");
-				conn = DriverManager.getConnection("jdbc:mysql://" + AWSDBIP + ":3306/customerManagementDB", "admin", "projetoie");
+				conn = DriverManager.getConnection("jdbc:mysql://" + AWSDBIP + ":3306/userdb", "admin", "projetoie");
 				bd_ok = true;
 			} catch (SQLException sqle) {
 				logger.log("Error : " + sqle.toString());
@@ -62,17 +62,17 @@ public class UserManagementService implements RequestStreamHandler {
 			boolean bdOperator_ok = false;
 			try {
 				Class.forName("com.mysql.cj.jdbc.Driver");
-				connOperatorDB = DriverManager.getConnection("jdbc:mysql://" + AWSOperatorIP + ":3306/operatorManagementDB", "admin", "projetoie");
+				connOperatorDB = DriverManager.getConnection("jdbc:mysql://" + AWSDBIP + ":3306/operatordb", "admin", "projetoie");
 				bdOperator_ok = true;
 			} catch (SQLException sqle) {
-				System.out.println("Error : " + sqle.toString());
+				logger.log("Error : " + sqle.toString());
 			} catch (ClassNotFoundException e) {
-				System.out.println("Error : " + e.toString());
+				logger.log("Error : " + e.toString());
 			}
 			
 			//Prepare consumer
 			Properties props = new Properties();
-			props.put("bootstrap.servers", AWSIP + ":9093," + AWSIP + ":9094," + AWSIP + ":9095");
+			props.put("bootstrap.servers", AWSIP + ":9092," + AWSIP + ":9093," + AWSIP + ":9094");
 			props.put("group.id", groupId);
 			props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 			props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -81,12 +81,12 @@ public class UserManagementService implements RequestStreamHandler {
 			
 			
 			//Collect operator names and subscribe to topics
-			subscribeOperatorTopics();
+			subscribeOperatorTopics(logger);
 			
 			
 			//Prepare producer
 			Properties propsConsumer = new Properties();
-			propsConsumer.put("bootstrap.servers", AWSIP + ":9093," + AWSIP + ":9094," + AWSIP + ":9095");
+			propsConsumer.put("bootstrap.servers", AWSIP + ":9092," + AWSIP + ":9093," + AWSIP + ":9094");
 			propsConsumer.put("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
 			propsConsumer.put("value.serializer","org.apache.kafka.common.serialization.StringSerializer");
 			producer = new KafkaProducer<String, String>(propsConsumer);
@@ -96,7 +96,7 @@ public class UserManagementService implements RequestStreamHandler {
 				logger.log("handleRequest: Begin!!\n");
 				while (true) {
 					ConsumerRecords<String, String> records = consumer.poll(100);
-					logger.log("handleRequest: records = " + records.count() + "\n");
+					//logger.log("handleRequest: records = " + records.count() + "\n");
 					for (ConsumerRecord<String, String> record : records) {
 						logger.log("handleRequest: topic = " + record.topic() +", partition = " + record.partition() + ", offset = " + record.offset() + ",customer = " + record.key() + ",message = " + record.value() +"\n");
 						
@@ -107,7 +107,7 @@ public class UserManagementService implements RequestStreamHandler {
 						JSONObject extractedEvent = (JSONObject) ((JSONObject) parser.parse(message)).get("event");
 						
 						if(extractedEvent != null && bd_ok && bdOperator_ok) {
-							processEvent(extractedEvent, topic, logger, conn, producer);	
+							processEvent(extractedEvent, topic, logger);	
 						}
 						else {
 							logger.log("Error : extractedEvent is " + extractedEvent + " and BDConnnection=" + bd_ok + " and operatorDBConnection=" + bdOperator_ok + "\n");
@@ -131,7 +131,7 @@ public class UserManagementService implements RequestStreamHandler {
 		}
 	}
 
-	private void subscribeOperatorTopics() {
+	private void subscribeOperatorTopics(LambdaLogger logger) {
 		PreparedStatement s;
 		ResultSet resultSet;
 		List<String> topicsList = new ArrayList<String> ();
@@ -143,7 +143,7 @@ public class UserManagementService implements RequestStreamHandler {
 				String operatorName = resultSet.getString("operatorName");
 				
 				String topicName = operatorType + "_" + operatorName;
-				System.out.println("Subscribing to topic ->" + topicName + "\n");
+				logger.log("Subscribing to topic ->" + topicName + "\n");
 				topicsList.add(topicName);
 		    }
 		    
@@ -151,19 +151,18 @@ public class UserManagementService implements RequestStreamHandler {
 		    resultSet.close();
 		    
 		} catch (SQLException e) {
-			System.out.println("Error : subscribeOperatorTopics ->" + e.toString() + "\n");
+			logger.log("Error : subscribeOperatorTopics ->" + e.toString() + "\n");
 		}
 
 		consumer.subscribe(topicsList);
 	}
 	
-	public void processEvent(JSONObject extractedEvent, String topic, LambdaLogger logger, Connection conn, KafkaProducer<String, String> producer) {
+	public void processEvent(JSONObject extractedEvent, String topic, LambdaLogger logger) {
 
 		try {
 			String eventType = (String) extractedEvent.get("eventType");
 			String operator = (String) extractedEvent.get("operator");
 			if(operator != null) {
-				//Validation needed because of new-user events
 				logger.log("parseEvent(operator):" + operator + "\n");
 			}
 			JSONObject infojson = (JSONObject) extractedEvent.get("info");
@@ -172,16 +171,16 @@ public class UserManagementService implements RequestStreamHandler {
 			
 			switch(eventType) {
 				case "t0-check-in":
-					insertT0Info(conn, operator, eventType, infojson, logger, producer);
+					insertT0Info(operator, eventType, infojson, logger);
 					break;
 				case "t0-check-out":
-					insertT0Info(conn, operator, eventType, infojson, logger, producer);
+					insertT0Info(operator, eventType, infojson, logger);
 					break;
 				case "t1":
-					insertT1Info(conn, operator, infojson, logger, producer);
+					insertT1Info(operator, infojson, logger);
 					break;
 				case "t2":
-					insertT2Info(conn, operator, infojson, logger, producer);
+					insertT2Info(operator, infojson, logger);
 					break;
 				default:
 					logger.log("parseEvent(eventType): Error : There is not such type of event:" + eventType + "\n");
@@ -194,51 +193,63 @@ public class UserManagementService implements RequestStreamHandler {
 
 	}
 
-	private void insertT2Info(Connection conn, String operator, JSONObject infojson, LambdaLogger logger, KafkaProducer<String, String> producer) throws SQLException {
-		String token = (String) infojson.get("Token");
+	private void insertT2Info(String operator, JSONObject infojson, LambdaLogger logger){
+		String id = (String) infojson.get("Id");
 		String price = (String) infojson.get("Price");
 		String time = (String) infojson.get("Time");
 		String timestamp = (String) infojson.get("Timestamp");
-		String tripId = getUniqueID(logger, token, timestamp);
+		String tripId = getUniqueID(logger, id, timestamp);
 		
-		insertHistory(conn, operator, token, timestamp, logger, tripId);
+		insertHistory(operator, id, timestamp, logger, tripId);
 		
-		PreparedStatement s = conn.prepareStatement("insert into T2_History values(?,?,?,?)");
-		s.setString(1, tripId);
-		s.setTimestamp(2, java.sql.Timestamp.valueOf(timestamp));
-		s.setLong(3, Long.parseLong(time));
-		s.setFloat(4, Float.parseFloat(price));
-		s.executeUpdate();
-		s.close();
+		PreparedStatement s;
+		try {
+			s = conn.prepareStatement("insert into T2_History values(?,?,?,?)");
+			s.setString(1, tripId);
+			s.setTimestamp(2, java.sql.Timestamp.valueOf(timestamp));
+			s.setLong(3, Long.parseLong(time));
+			s.setFloat(4, Float.parseFloat(price));
+			s.executeUpdate();
+			s.close();
+		} catch (SQLException e) {
+			logger.log("Error : insertT2Info ->" + e.toString() + "\n");
+		}
+
 		
-		produceTripCostEvent(conn, operator, producer, price, "t2", token, timestamp, tripId, logger);
+		produceTripCostEvent(operator, price, "t2", id, timestamp, tripId, logger);
 	}
 
-	private void insertT1Info(Connection conn, String operator, JSONObject infojson, LambdaLogger logger, KafkaProducer<String, String> producer) throws SQLException {
-		String token = (String) infojson.get("Token");
+	private void insertT1Info(String operator, JSONObject infojson, LambdaLogger logger){
+		String id = (String) infojson.get("Id");
 		String price = (String) infojson.get("Price");
 		String timestamp = (String) infojson.get("Timestamp");
-		String tripId = getUniqueID(logger, token, timestamp);
+		String tripId = getUniqueID(logger, id, timestamp);
 		
-		insertHistory(conn, operator, token, timestamp, logger, tripId);
+		insertHistory(operator, id, timestamp, logger, tripId);
 		
-		PreparedStatement s = conn.prepareStatement("insert into T1_History values(?,?,?)");
-		s.setString(1, tripId);
-		s.setTimestamp(2, java.sql.Timestamp.valueOf(timestamp));
-		s.setFloat(3, Float.parseFloat(price));
-		s.executeUpdate();
-		s.close();
+		PreparedStatement s;
+		try {
+			s = conn.prepareStatement("insert into T1_History values(?,?,?)");
+			s.setString(1, tripId);
+			s.setTimestamp(2, java.sql.Timestamp.valueOf(timestamp));
+			s.setFloat(3, Float.parseFloat(price));
+			s.executeUpdate();
+			s.close();
+		} catch (SQLException e) {
+			logger.log("Error : insertT1Info ->" + e.toString() + "\n");
+		}
+
 		
-		produceTripCostEvent(conn, operator, producer, price, "t1", token, timestamp, tripId, logger);
+		produceTripCostEvent(operator, price, "t1", id, timestamp, tripId, logger);
 	}
 
-	private void insertT0Info(Connection conn, String operator, String eventType, JSONObject infojson, LambdaLogger logger, KafkaProducer<String, String> producer) throws SQLException {
-		String token = (String) infojson.get("Token");
+	private void insertT0Info(String operator, String eventType, JSONObject infojson, LambdaLogger logger) throws SQLException {
+		String id = (String) infojson.get("Id");
 		String station = (String) infojson.get("Station");
 		String timestamp = (String) infojson.get("Timestamp");
-		String tripId = getUniqueID(logger, token, timestamp);
+		String tripId = getUniqueID(logger, id, timestamp);
 		
-		insertHistory(conn, operator, token, timestamp, logger, tripId);
+		insertHistory(operator, id, timestamp, logger, tripId);
 		
 		if(eventType.equals("t0-check-in")) {
 			PreparedStatement s = conn.prepareStatement("insert into T0_History values(?,?,?,?)");
@@ -249,7 +260,7 @@ public class UserManagementService implements RequestStreamHandler {
 			s.executeUpdate();
 			s.close();
 			
-			produceTripCostEvent(conn, operator, producer, "null", "t0", token, timestamp, tripId, logger);
+			produceTripCostEvent(operator, "null", "t0", id, timestamp, tripId, logger);
 		}
 		else if(eventType.equals("t0-check-out")) {
 			PreparedStatement s = conn.prepareStatement("insert into T0_History values(?,?,?,?)");
@@ -265,22 +276,22 @@ public class UserManagementService implements RequestStreamHandler {
 		}
 	}
 
-	private void produceTripCostEvent(Connection conn, String operator, KafkaProducer<String, String> producer, String cost, String operatorType, String token,
+	private void produceTripCostEvent(String operator, String cost, String operatorType, String id,
 			String timestamp, String tripId, LambdaLogger logger) {
 		
 		PreparedStatement s;
 		ResultSet resultSet;
 		try {
 			logger.log("produceTripCostEvent : send event !\n");
-			s = conn.prepareStatement("select * from userInfo where token = ?");
-			s.setString(1, token);
+			s = conn.prepareStatement("select planType from userInfo where id = ?");
+			s.setString(1, id);
 			resultSet = s.executeQuery();
 			while (resultSet.next()) {
 	            String planType = resultSet.getString("planType");
 	            
 	            String event = "{\"event\":{\"eventType\":\"trip-cost\", \"info\":{ " +
 	    				"\"cost\": \"" + cost + "\", "+
-	    				"\"token\": \" " + token + "\", "+
+	    				"\"id\": \" " + id + "\", "+
 	    				"\"planType\": \"" + planType +"\", "+
 	    				"\"operatorName\": \""+operator+"\", "+
 	    				"\"timeStamp\": \""+timestamp+"\" "+
@@ -302,7 +313,7 @@ public class UserManagementService implements RequestStreamHandler {
 		}
 	}
 
-	private String getUniqueID(LambdaLogger logger, String token, String timestamp) {
+	private String getUniqueID(LambdaLogger logger, String id, String timestamp) {
 		Date date;
 		String datetime = "";
 		try {
@@ -312,17 +323,23 @@ public class UserManagementService implements RequestStreamHandler {
 		} catch (java.text.ParseException e) {
 			logger.log("Error : " + e.toString());
 		}
-		return token + "-" + datetime;
+		return id + "-" + datetime;
 	}
 
-	private void insertHistory(Connection conn, String operator, String token, String timestamp, LambdaLogger logger, String tripId) throws SQLException {
-		PreparedStatement s = conn.prepareStatement("insert into history values(?,?,?,?)");
-		s.setString(1, tripId);
-		s.setString(2, token);
-		s.setString(3, operator);
-		s.setTimestamp(4, java.sql.Timestamp.valueOf(timestamp));
-		s.executeUpdate();
-		s.close();
+	private void insertHistory(String operator, String id, String timestamp, LambdaLogger logger, String tripId){
+		PreparedStatement s;
+		try {
+			s = conn.prepareStatement("insert into history values(?,?,?,?)");
+			s.setString(1, tripId);
+			s.setString(2, id);
+			s.setString(3, operator);
+			s.setTimestamp(4, java.sql.Timestamp.valueOf(timestamp));
+			s.executeUpdate();
+			s.close();
+		} catch (SQLException e) {
+			logger.log("Error : InsertHistory ->" + e.toString() + "\n");
+		}
+
 	}
 	
 	public String startService(LambdaLogger logger, InputStream inputStream) {
