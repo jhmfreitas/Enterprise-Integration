@@ -32,7 +32,7 @@ import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 public class UserManagementService implements RequestStreamHandler {
 	String AWSDBIP = "userdb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
-	String AWSIP = "ec2-54-80-154-131.compute-1.amazonaws.com";
+	String AWSIP = "ec2-52-202-49-153.compute-1.amazonaws.com";
 	//String AWSOperatorIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
 	String groupId = "UserManagementService";
 	KafkaProducer<String, String> producer;
@@ -291,7 +291,7 @@ public class UserManagementService implements RequestStreamHandler {
 	            
 	            String event = "{\"event\":{\"eventType\":\"trip-cost\", \"info\":{ " +
 	    				"\"cost\": \"" + cost + "\", "+
-	    				"\"id\": \" " + id + "\", "+
+	    				"\"id\": \"" + id + "\", "+
 	    				"\"planType\": \"" + planType +"\", "+
 	    				"\"operatorName\": \""+operator+"\", "+
 	    				"\"timeStamp\": \""+timestamp+"\" "+

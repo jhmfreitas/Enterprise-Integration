@@ -54,37 +54,41 @@ public class LoadAccountService implements RequestStreamHandler {
 			logger.log("start:" + (String) event.toString() + "\n");
 			JSONObject responseBody = new JSONObject();
 			ResultSet resultSet;
-			int balance;
+			float balance;
+			int id;
+			String response = "Failure";
 
 			if (bd_ok == true && event != null) {
 				PreparedStatement s;
-				int totalAmount = 0;
-				s = conn.prepareStatement("select * from userBalance where nif = ?");
+				float totalAmount = 0;
+				s = conn.prepareStatement("select * from userBalance,userInfo where userBalance.id = userInfo.id and nif = ?");
 				s.setString(1, nif);
 				resultSet = s.executeQuery();
 				while (resultSet.next()) {
 					logger.log("Found entry of this user!\n");
-					balance = resultSet.getInt("balance");
-					totalAmount = Integer.parseInt(amount) + balance;
-					s = conn.prepareStatement("update userBalance set balance = ? where nif = ?");
-					s.setInt(1, totalAmount);
-					s.setString(2, nif);
-					resultSet = s.executeQuery();
+					balance = resultSet.getFloat("balance");
+					responseBody.put("previous-balance",String.valueOf(balance));
+					id = resultSet.getInt("id");
+					totalAmount = Float.parseFloat(amount) + balance;
+					responseBody.put("new-balance",String.valueOf(totalAmount));
+					s = conn.prepareStatement("update userBalance set balance = ? where id = ?");
+					s.setFloat(1, totalAmount);
+					s.setInt(2, id);
+					s.executeUpdate();
 					
 					s.close();
-					resultSet.close();
+					response = "Success! Account loaded: " + totalAmount+"€";
 					
 					break;
 				}
+				resultSet.close();
 				conn.close();
 
-				responseBody.put("message","Success! Account loaded: " + totalAmount+"€");
+				
 			} else {
 				logger.log("Failed: bd_ok=" + bd_ok + " event=" + event + "\n");
-				responseBody.put("message","Failure");
 			}
-
-			//responseBody.put("message", validData);
+			responseBody.put("message",response);
 			JSONObject headerJson = new JSONObject();
 			headerJson.put("x-custom-header", "Load Account Service");
 			responseJson.put("statusCode", 200);

@@ -1,0 +1,8 @@
+curl -i -X POST --url http://localhost:8001/services/ --data 'name=CheckUserService' --data 'url=https://qokp7xifaf.execute-api.us-east-1.amazonaws.com/default/CheckUser'
+
+curl -i -X POST --url http://localhost:8001/services/CheckUserService/routes --data 'hosts[]=check-user.com'
+
+
+curl -i -X POST --url http://localhost:8001/services/ --data 'name=GetUserEmailService' --data 'url=https://xgtr8btwm8.execute-api.us-east-1.amazonaws.com/default/GetUserEmail'
+
+curl -i -X POST --url http://localhost:8001/services/GetUserEmailService/routes --data 'hosts[]=get-email.com'

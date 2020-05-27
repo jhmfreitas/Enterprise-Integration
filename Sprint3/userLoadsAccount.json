@@ -1,3 +1,5 @@
 {
-    "messageName": "UserLoadsAccountMessage"
+    "messageName": "UserLoadsAccountMessage",
+    "businessKey": "4",
+    "resultEnabled": true
 }

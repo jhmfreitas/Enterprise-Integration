@@ -24,7 +24,7 @@ import org.json.simple.parser.ParseException;
 
 public class DunningProcessWorker {
 	private final static Logger LOGGER = Logger.getLogger(DunningProcessWorker.class.getName());
-
+	private final static String KongIP = "";
 	public static void main(String[] args) {
 		ExternalTaskClient blacklistClient = ExternalTaskClient.create().baseUrl("http://192.168.99.100:8080/engine-rest")
 				.asyncResponseTimeout(10000).build();
@@ -34,7 +34,7 @@ public class DunningProcessWorker {
 			
 			try {
 				LOGGER.info("Blacklist User Started!");
-				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
+				HttpPost postRequest = new HttpPost(KongIP);
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "blacklist-user.com");
 				String query = "{\"id\":\""+id+"\",\"operation\":\"blacklist\"}";
@@ -72,7 +72,7 @@ public class DunningProcessWorker {
 			
 			try {
 				LOGGER.info("Undo Blacklist Started!");
-				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
+				HttpPost postRequest = new HttpPost(KongIP);
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "blacklist-user.com");
 				String query = "{\"id\":\""+id+"\",\"operation\":\"undo-blacklist\"}";
@@ -110,7 +110,7 @@ public class DunningProcessWorker {
 			
 			try {
 				LOGGER.info("Remove User Started!");
-				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
+				HttpPost postRequest = new HttpPost(KongIP);
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "remove-user.com");
 				String query = "{\"id\":\""+id+"\"}";

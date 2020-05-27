@@ -27,8 +27,9 @@ CREATE TABLE planType(
 CREATE TABLE discount_planType
 (
     discountId VARCHAR(100) NOT NULL,
-    plan VARCHAR(20) NOT NULL UNIQUE,
+    plan VARCHAR(20) NOT NULL,
     CONSTRAINT pk_discount_planType PRIMARY KEY (discountId,plan),
+    CONSTRAINT fk_operatorId FOREIGN KEY (discountId) REFERENCES operator(discountId) on DELETE CASCADE,
     CONSTRAINT fk_planType FOREIGN KEY (plan) REFERENCES planType(plan) on DELETE CASCADE
 );
 

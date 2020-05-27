@@ -19,6 +19,7 @@ import org.json.simple.parser.ParseException;
 
 public class UserRegisterWorker {
 	private final static Logger LOGGER = Logger.getLogger(UserRegisterWorker.class.getName());
+	private final static String KongIP = "http://ec2-52-90-167-63.compute-1.amazonaws.com:8000";
 	
 	public static void main(String[] args) {
 		ExternalTaskClient uniqueClient = ExternalTaskClient.create().baseUrl("http://192.168.99.100:8080/engine-rest")
@@ -28,7 +29,7 @@ public class UserRegisterWorker {
 			String nif = (String) externalTask.getVariable("nif");
 			try {
 				LOGGER.info("Unique User Validation Started");
-				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
+				HttpPost postRequest = new HttpPost(KongIP);
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "unique-id.com");
 				String query = "{\"nif\":\""+nif+"\"}";
@@ -133,7 +134,7 @@ public class UserRegisterWorker {
 			String address = (String) externalTask.getVariable("address");
 			try {
 				LOGGER.info("Creation Started");
-				HttpPost postRequest = new HttpPost("http://ec2-54-236-120-160.compute-1.amazonaws.com:8000");
+				HttpPost postRequest = new HttpPost(KongIP);
 				postRequest.addHeader("content-type", "application/json");
 				postRequest.addHeader("Host", "new-user.com");
 				String query = "{\"nif\":\""+nif+"\",\"address\":\""+address+"\",\"email\":\""+ email +"\",\"planType\":\""+planType+"\",\"firstName\":\""+firstName+"\",\"lastName\":\""+lastName+"\",\"balance\":\""+balance+"\"}";

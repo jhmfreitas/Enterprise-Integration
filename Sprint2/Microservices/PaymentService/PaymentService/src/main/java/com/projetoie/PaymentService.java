@@ -35,7 +35,8 @@ import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 public class PaymentService implements RequestStreamHandler {
 	String AWSDBIP = "userdb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
-	String AWSIP = "ec2-54-80-154-131.compute-1.amazonaws.com";
+	String AWSIP = "ec2-52-202-49-153.compute-1.amazonaws.com";
+	String CamundaIP = "ec2-54-82-161-3.compute-1.amazonaws.com";
 	String groupId = "PaymentService";
 	Connection conn = null;
 	KafkaConsumer<String, String> consumer;
@@ -111,7 +112,6 @@ public class PaymentService implements RequestStreamHandler {
 	}
 	
 	public void processEvent(JSONObject extractedEvent, LambdaLogger logger) {
-
 		String eventType = (String) extractedEvent.get("eventType");
 		logger.log("parseEvent(eventType):" + eventType + "\n");
 		JSONObject infojson = (JSONObject) extractedEvent.get("info");
@@ -134,8 +134,6 @@ public class PaymentService implements RequestStreamHandler {
 		
 		if(planType.equals("pre-paid")) {
 			PreparedStatement s;
-			PreparedStatement statementBalance;
-			PreparedStatement statementInfo;
 			ResultSet resultSet;
 			try {
 				logger.log("Processing debit event\n");
@@ -143,38 +141,24 @@ public class PaymentService implements RequestStreamHandler {
 				s.setString(1, id);
 				resultSet = s.executeQuery();
 				while (resultSet.next()) {
-		            String userAccountAmount = resultSet.getString("balance");
-		            logger.log("User Balance -> " + userAccountAmount + "\n");
+		            String previousAccountBalance = resultSet.getString("balance");
+		            logger.log("User Balance -> " + previousAccountBalance + "\n");
 		            logger.log("Trip Cost -> " + Float.parseFloat(amount) + "\n");
-		            float total = Float.parseFloat(userAccountAmount) - Float.parseFloat(amount);
+		            float total = Float.parseFloat(previousAccountBalance) - Float.parseFloat(amount);
 
-		            if(total > 0) {
-			            
-		            	statementBalance = conn.prepareStatement("update userBalance set balance = ? where id = ?");
-		            	statementBalance.setFloat(1, total);
-		            	statementBalance.setString(2, id);
-		            	statementBalance.executeUpdate();
-		            	statementBalance.close();
-		            	
-		            	logger.log("Debited Account of user: " + id + "   New Account Balance: " + total + "\n");
-		            }
-		            else {
-		            	//Dunning
-		    			ResultSet resultSetDunning;
-	    				logger.log("Start Dunning Process\n");
-	    				statementInfo = conn.prepareStatement("select email from userInfo where id = ?");
-	    				statementInfo.setString(1, id);
-	    				resultSetDunning = statementInfo.executeQuery();
-	    				while (resultSetDunning.next()) {
-	    		            String email = resultSetDunning.getString("email");
-	    		            logger.log("Result(email) -> " + email + "\n");
-	    		            
-	    		            startDunningProcess(email, id,logger);
-	    		            
-	    		        }
-	    				statementInfo.close();
-		            }
+		            debitAmount(logger, id, total);
 		            
+		            if(total <= 0 && Float.parseFloat(previousAccountBalance) > 0) {
+	            		//User had positive balance but now it is negative or equal to 0
+	            		//Dunning Process Starts
+	            		String email = getUserEmail(logger, id);
+	            		if(email != null) {
+	            			startDunningProcess(email, id,logger);
+	            		}
+	            		else {
+	            			logger.log("Email is null!\n");
+	            		}
+		            }     
 		        }
 				s.close();
 				//conn.close();
@@ -183,12 +167,41 @@ public class PaymentService implements RequestStreamHandler {
 			}
 		}
 	}
+
+	private String getUserEmail(LambdaLogger logger, String id) throws SQLException {
+		PreparedStatement statementInfo;
+		String email = null;
+		ResultSet resultSetInfo;
+		logger.log("Getting Email!\n");
+		statementInfo = conn.prepareStatement("select email from userInfo where id = ?");
+		statementInfo.setString(1, id);
+		resultSetInfo = statementInfo.executeQuery();
+		while (resultSetInfo.next()) {
+		    email = resultSetInfo.getString("email");
+		    logger.log("Result(email) -> " + email + "\n");
+		}
+		statementInfo.close();
+		return email;
+	}
+
+	private void debitAmount(LambdaLogger logger, String id, float total) throws SQLException {
+		PreparedStatement statementBalance;
+		statementBalance = conn.prepareStatement("update userBalance set balance = ? where id = ?");
+		statementBalance.setFloat(1, total);
+		statementBalance.setString(2, id);
+		statementBalance.executeUpdate();
+		statementBalance.close();
+		
+		logger.log("Debited Account of user: " + id + "   New Account Balance: " + total + "\n");
+	}
 	
 	private void startDunningProcess(String email, String id, LambdaLogger logger) {
+		logger.log("Start Dunning Process!\n");
 		DefaultHttpClient httpClient = new DefaultHttpClient();
-		HttpPost postRequest = new HttpPost("http://192.168.99.100:8080/engine-rest/process-definition/key/dunning-process/start");
+		HttpPost postRequest = new HttpPost("http://"+CamundaIP+":8080/engine-rest/process-definition/key/dunning-process/start");
 		postRequest.addHeader("content-type", "application/json");
 		String query = "{\"variables\": {\"fromEmail\": {\"value\":\"Maas Operator <mailgun@sandbox45a4ec4aa29243c78be39889e9338d42.mailgun.org>\"},\"email\":{\"value\":\"" + email + "\"},\"id\": {\"value\":\""+ id + "\"} },\"businessKey\": \""+ id+ "\"}";
+		logger.log("Request: " + query + "\n");
 		StringEntity Entity;
 		try {
 			Entity = new StringEntity(query);
@@ -206,15 +219,6 @@ public class PaymentService implements RequestStreamHandler {
 		} finally {
 			httpClient.getConnectionManager().shutdown();
 		}
-
-		/*HttpEntity responseEntity = response.getEntity();
-		if (responseEntity != null) {
-			String responseStr = EntityUtils.toString(responseEntity); 
-			JSONParser parser = new JSONParser();
-			JSONObject responseObj = (JSONObject) ((JSONObject) parser.parse(responseStr));
-			String responseValue = (String) responseObj.get("message");
-			LOGGER.info("Undo Blacklist:"+responseValue);
-		}*/
 	}
 
 	public String startService(LambdaLogger logger, InputStream inputStream) {
