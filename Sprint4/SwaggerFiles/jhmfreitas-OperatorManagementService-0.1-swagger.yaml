@@ -1,0 +1,114 @@
+openapi: 3.0.1
+info:
+  title: Operator Management Service API
+  description: This document contains information about Operator Management Service Interface
+  version: '0.1'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - description: CreateDiscount
+    url: 'https://5jgqj5i8z3.execute-api.us-east-1.amazonaws.com/default/DiscountCreation'
+  - description: CreateOperator
+    url: 'https://ysuo5wgpg1.execute-api.us-east-1.amazonaws.com/default/OperatorCreation'
+tags:
+  - name: Operator
+    description: Operator related operations
+  - name: Discount
+    description: Discount related operations
+paths:
+  /createOperator:
+    post:
+      tags:
+        - Operator
+      description: This method creates a new operator in the database and a new topic for that operator. For operators of type T1 and T2 the price must be null
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateOperatorRequest'
+  /createDiscount:
+    post:
+      tags:
+        - Discount
+      description: This method creates a new discount 
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ResponseMessage'
+      requestBody:
+        $ref: '#/components/requestBodies/CreateDiscountRequest'
+components:
+  requestBodies:
+    CreateOperatorRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateOperator'
+      required: true
+    CreateDiscountRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateDiscount'
+      required: true
+  schemas:
+    CreateOperator:
+      type: object
+      required:
+        - operator
+        - operatorType
+        - price
+      properties:
+        operator:
+          type: string
+        operatorType:
+          type: string
+        price:
+          type: string
+    CreateDiscount:
+      type: object
+      required:
+        - discountId
+        - operatorType
+        - price
+      properties:
+        discountId:
+          type: string
+        discountName:
+          type: string
+        value:
+          type: string
+        beginAt:
+          type: string
+        endAt:
+          type: string
+        planType:
+          type: string
+          enum:
+            - pre-paid
+            - generalPass
+            - post-paid
+            - passT0
+            - passT1
+            - passT2
+            - combined_T0_T1
+            - combined_T0_T2
+            - combined_T1_T2
+    ResponseMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          enum:
+            - Success
+            - Failure

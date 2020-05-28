@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_03uj7mh" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.7.3">
+  <bpmn:process id="dunning-process" name="Dunning Process" isExecutable="true">
+    <bpmn:serviceTask id="Activity_0cae53k" name="Blacklist user" camunda:type="external" camunda:topic="blacklist-user">
+      <bpmn:incoming>Flow_19g68f6</bpmn:incoming>
+      <bpmn:outgoing>Flow_0rqdsh4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_1qdyi27" name="Dunning Process Ended">
+      <bpmn:incoming>Flow_0wtef8b</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:intermediateCatchEvent id="Event_11enjsq" name="2 weeks">
+      <bpmn:incoming>Flow_0lva4hv</bpmn:incoming>
+      <bpmn:outgoing>Flow_0e2agql</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1gyky55">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT120S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_06v0e00" sourceRef="Activity_0j17sbl" targetRef="Gateway_077puag" />
+    <bpmn:sequenceFlow id="Flow_0e2agql" sourceRef="Event_11enjsq" targetRef="Activity_0h1dijh" />
+    <bpmn:sequenceFlow id="Flow_0h46uie" sourceRef="Event_0um9klq" targetRef="Activity_1uosri7" />
+    <bpmn:intermediateCatchEvent id="Event_0um9klq" name="2 weeks">
+      <bpmn:incoming>Flow_0ld9e5z</bpmn:incoming>
+      <bpmn:outgoing>Flow_0h46uie</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_0dxn6ve">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT400S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:eventBasedGateway id="Gateway_077puag">
+      <bpmn:incoming>Flow_06v0e00</bpmn:incoming>
+      <bpmn:outgoing>Flow_0lva4hv</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11pjtz0</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:sequenceFlow id="Flow_0lva4hv" sourceRef="Gateway_077puag" targetRef="Event_11enjsq" />
+    <bpmn:endEvent id="Event_1o181oa" name="Dunning Process Ended">
+      <bpmn:incoming>Flow_1kd1vna</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_01xnhju" name="Remove user" camunda:type="external" camunda:topic="remove-user">
+      <bpmn:incoming>Flow_02wdnyi</bpmn:incoming>
+      <bpmn:outgoing>Flow_0wtef8b</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="Event_0v2unce" name="User loads account">
+      <bpmn:incoming>Flow_11pjtz0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1jlvsf5</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_0gxk1h6" messageRef="Message_0jx3bh3" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_11pjtz0" sourceRef="Gateway_077puag" targetRef="Event_0v2unce" />
+    <bpmn:sequenceFlow id="Flow_1jlvsf5" sourceRef="Event_0v2unce" targetRef="Activity_0820tt0" />
+    <bpmn:sequenceFlow id="Flow_0ld9e5z" sourceRef="Gateway_1ftbf5i" targetRef="Event_0um9klq" />
+    <bpmn:eventBasedGateway id="Gateway_1ftbf5i">
+      <bpmn:incoming>Flow_1einoen</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ld9e5z</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ndp8ys</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:endEvent id="Event_0xzphms" name="Dunning Process Ended">
+      <bpmn:incoming>Flow_05wgcio</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:intermediateCatchEvent id="Event_0mz1he2" name="User loads account">
+      <bpmn:incoming>Flow_0ndp8ys</bpmn:incoming>
+      <bpmn:outgoing>Flow_0i6b65t</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_11zdv8f" messageRef="Message_0w6areq" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_0ndp8ys" sourceRef="Gateway_1ftbf5i" targetRef="Event_0mz1he2" />
+    <bpmn:sequenceFlow id="Flow_0i6b65t" sourceRef="Event_0mz1he2" targetRef="Activity_136raim" />
+    <bpmn:sequenceFlow id="Flow_0g2147m" sourceRef="Event_177jzom" targetRef="Activity_0f4j90h" />
+    <bpmn:sequenceFlow id="Flow_0wtef8b" sourceRef="Activity_01xnhju" targetRef="Event_1qdyi27" />
+    <bpmn:sequenceFlow id="Flow_0rqdsh4" sourceRef="Activity_0cae53k" targetRef="Gateway_00zrvzk" />
+    <bpmn:eventBasedGateway id="Gateway_00zrvzk">
+      <bpmn:incoming>Flow_0rqdsh4</bpmn:incoming>
+      <bpmn:outgoing>Flow_0f2u5f9</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1r6sphk</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:intermediateCatchEvent id="Event_177jzom" name="2 weeks">
+      <bpmn:incoming>Flow_0f2u5f9</bpmn:incoming>
+      <bpmn:outgoing>Flow_0g2147m</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1wow0rk">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT30S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_0f2u5f9" sourceRef="Gateway_00zrvzk" targetRef="Event_177jzom" />
+    <bpmn:intermediateCatchEvent id="Event_0pybfh2" name="User loads Account">
+      <bpmn:incoming>Flow_1r6sphk</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ipwx9g</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_13h7m7m" messageRef="Message_01h5lz2" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_1r6sphk" sourceRef="Gateway_00zrvzk" targetRef="Event_0pybfh2" />
+    <bpmn:sequenceFlow id="Flow_1ipwx9g" sourceRef="Event_0pybfh2" targetRef="Activity_1xinp91" />
+    <bpmn:endEvent id="Event_0gss7p0" name="Dunning Process Ended">
+      <bpmn:incoming>Flow_17rf95g</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_0j17sbl" name="Warn User">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://api.mailgun.net/v3/sandbox45a4ec4aa29243c78be39889e9338d42.mailgun.org/messages</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/x-www-form-urlencoded</camunda:entry>
+                <camunda:entry key="Authorization">${basicAuth64}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="javascript">var data = {
+    "from": execution.getVariable("fromEmail"),
+    "to": execution.getVariable("email"),
+    "subject": execution.getVariable("subjectFirstWarning"),
+    "text": execution.getVariable("firstWarning")
+    };
+
+// Converts the JSON into a MailGun friendly params string
+emailContent = Object.keys(data).map(function(k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+}).join('&amp;')
+
+emailContent;</camunda:script>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="WsResponse">
+              <camunda:script scriptFormat="javascript">S('"response"', 'application/json');</camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="basicAuth64">
+            <camunda:script scriptFormat="javascript">// Base64 encoder object; used because Nashorn does not provide window.btoa() 
+
+var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f&lt;e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n&gt;&gt;2;o=(n&amp;3)&lt;&lt;4|r&gt;&gt;4;u=(r&amp;15)&lt;&lt;2|i&gt;&gt;6;a=i&amp;63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9+/=]/g,"");while(f&lt;e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s&lt;&lt;2|o&gt;&gt;4;r=(o&amp;15)&lt;&lt;4|u&gt;&gt;2;i=(u&amp;3)&lt;&lt;6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/rn/g,"n");var t="";for(var n=0;n&lt;e.length;n++){var r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r)}else if(r&gt;127&amp;&amp;r&lt;2048){t+=String.fromCharCode(r&gt;&gt;6|192);t+=String.fromCharCode(r&amp;63|128)}else{t+=String.fromCharCode(r&gt;&gt;12|224);t+=String.fromCharCode(r&gt;&gt;6&amp;63|128);t+=String.fromCharCode(r&amp;63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n&lt;e.length){r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r);n++}else if(r&gt;191&amp;&amp;r&lt;224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&amp;31)&lt;&lt;6|c2&amp;63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&amp;15)&lt;&lt;12|(c2&amp;63)&lt;&lt;6|c3&amp;63);n+=3}}return t}};
+
+// MailGun Username and Password go here.
+var api_key = "2a63cc762aa63572a44048314f741a38-3e51f8d2-6db13053";
+
+var encoded = Base64.encode('api:' + api_key);
+"Basic " + encoded;</camunda:script>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="firstWarning">Dear costumer,
+You account's balance is zero or below zero. Please load it again to continue to use our services.
+
+
+Sincerely,
+Maas Operator</camunda:inputParameter>
+          <camunda:inputParameter name="subjectFirstWarning">Account Balance</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1pxx8p0</bpmn:incoming>
+      <bpmn:outgoing>Flow_06v0e00</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="Event_1ctbm7j" name="Balance is zero">
+      <bpmn:outgoing>Flow_1pxx8p0</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1pxx8p0" sourceRef="Event_1ctbm7j" targetRef="Activity_0j17sbl" />
+    <bpmn:serviceTask id="Activity_0h1dijh" name="Warn User Again">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://api.mailgun.net/v3/sandbox45a4ec4aa29243c78be39889e9338d42.mailgun.org/messages</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/x-www-form-urlencoded</camunda:entry>
+                <camunda:entry key="Authorization">${basicAuth64}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="javascript">var data = {
+    "from": execution.getVariable("fromEmail"),
+    "to": execution.getVariable("email"),
+    "subject": execution.getVariable("subjectSecondWarning"),
+    "text": execution.getVariable("secondWarning")
+    };
+
+// Converts the JSON into a MailGun friendly params string
+emailContent = Object.keys(data).map(function(k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+}).join('&amp;')
+
+emailContent;</camunda:script>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="WsResponse">
+              <camunda:script scriptFormat="javascript">S('"response"', 'application/json');</camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="basicAuth64">
+            <camunda:script scriptFormat="javascript">// Base64 encoder object; used because Nashorn does not provide window.btoa() 
+
+var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f&lt;e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n&gt;&gt;2;o=(n&amp;3)&lt;&lt;4|r&gt;&gt;4;u=(r&amp;15)&lt;&lt;2|i&gt;&gt;6;a=i&amp;63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9+/=]/g,"");while(f&lt;e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s&lt;&lt;2|o&gt;&gt;4;r=(o&amp;15)&lt;&lt;4|u&gt;&gt;2;i=(u&amp;3)&lt;&lt;6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/rn/g,"n");var t="";for(var n=0;n&lt;e.length;n++){var r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r)}else if(r&gt;127&amp;&amp;r&lt;2048){t+=String.fromCharCode(r&gt;&gt;6|192);t+=String.fromCharCode(r&amp;63|128)}else{t+=String.fromCharCode(r&gt;&gt;12|224);t+=String.fromCharCode(r&gt;&gt;6&amp;63|128);t+=String.fromCharCode(r&amp;63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n&lt;e.length){r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r);n++}else if(r&gt;191&amp;&amp;r&lt;224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&amp;31)&lt;&lt;6|c2&amp;63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&amp;15)&lt;&lt;12|(c2&amp;63)&lt;&lt;6|c3&amp;63);n+=3}}return t}};
+
+// MailGun Username and Password go here.
+var api_key = "2a63cc762aa63572a44048314f741a38-3e51f8d2-6db13053";
+
+var encoded = Base64.encode('api:' + api_key);
+"Basic " + encoded;</camunda:script>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="secondWarning">Dear costumer,
+You account's balance is zero or below zero. Please load it again to continue to use our services.
+
+
+Sincerely,
+Maas Operator</camunda:inputParameter>
+          <camunda:inputParameter name="subjectSecondWarning">Account Balance - Last Warning</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0e2agql</bpmn:incoming>
+      <bpmn:outgoing>Flow_1einoen</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1einoen" sourceRef="Activity_0h1dijh" targetRef="Gateway_1ftbf5i" />
+    <bpmn:serviceTask id="Activity_0820tt0" name="Notice user about loaded account">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://api.mailgun.net/v3/sandbox45a4ec4aa29243c78be39889e9338d42.mailgun.org/messages</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/x-www-form-urlencoded</camunda:entry>
+                <camunda:entry key="Authorization">${basicAuth64}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="javascript">var data = {
+    "from": execution.getVariable("fromEmail"),
+    "to": execution.getVariable("email"),
+    "subject": execution.getVariable("subjectAccountLoaded"),
+    "text": execution.getVariable("accountLoaded")
+    };
+
+// Converts the JSON into a MailGun friendly params string
+emailContent = Object.keys(data).map(function(k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+}).join('&amp;')
+
+emailContent;</camunda:script>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="WsResponse">
+              <camunda:script scriptFormat="javascript">S('"response"', 'application/json');</camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="basicAuth64">
+            <camunda:script scriptFormat="javascript">// Base64 encoder object; used because Nashorn does not provide window.btoa() 
+
+var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f&lt;e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n&gt;&gt;2;o=(n&amp;3)&lt;&lt;4|r&gt;&gt;4;u=(r&amp;15)&lt;&lt;2|i&gt;&gt;6;a=i&amp;63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9+/=]/g,"");while(f&lt;e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s&lt;&lt;2|o&gt;&gt;4;r=(o&amp;15)&lt;&lt;4|u&gt;&gt;2;i=(u&amp;3)&lt;&lt;6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/rn/g,"n");var t="";for(var n=0;n&lt;e.length;n++){var r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r)}else if(r&gt;127&amp;&amp;r&lt;2048){t+=String.fromCharCode(r&gt;&gt;6|192);t+=String.fromCharCode(r&amp;63|128)}else{t+=String.fromCharCode(r&gt;&gt;12|224);t+=String.fromCharCode(r&gt;&gt;6&amp;63|128);t+=String.fromCharCode(r&amp;63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n&lt;e.length){r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r);n++}else if(r&gt;191&amp;&amp;r&lt;224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&amp;31)&lt;&lt;6|c2&amp;63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&amp;15)&lt;&lt;12|(c2&amp;63)&lt;&lt;6|c3&amp;63);n+=3}}return t}};
+
+// MailGun Username and Password go here.
+var api_key = "2a63cc762aa63572a44048314f741a38-3e51f8d2-6db13053";
+
+var encoded = Base64.encode('api:' + api_key);
+"Basic " + encoded;</camunda:script>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="accountLoaded">Dear costumer,
+Thank you for loading your account. You can now continue to use our services.
+
+
+Sincerely,
+Maas Operator</camunda:inputParameter>
+          <camunda:inputParameter name="subjectAccountLoaded">Account Loaded</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1jlvsf5</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kd1vna</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1kd1vna" sourceRef="Activity_0820tt0" targetRef="Event_1o181oa" />
+    <bpmn:serviceTask id="Activity_136raim" name="Notice user about loaded account">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://api.mailgun.net/v3/sandbox45a4ec4aa29243c78be39889e9338d42.mailgun.org/messages</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/x-www-form-urlencoded</camunda:entry>
+                <camunda:entry key="Authorization">${basicAuth64}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="javascript">var data = {
+    "from": execution.getVariable("fromEmail"),
+    "to": execution.getVariable("email"),
+    "subject": execution.getVariable("subjectAccountLoaded"),
+    "text": execution.getVariable("accountLoaded")
+    };
+
+// Converts the JSON into a MailGun friendly params string
+emailContent = Object.keys(data).map(function(k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+}).join('&amp;')
+
+emailContent;</camunda:script>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="WsResponse">
+              <camunda:script scriptFormat="javascript">S('"response"', 'application/json');</camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="basicAuth64">
+            <camunda:script scriptFormat="javascript">// Base64 encoder object; used because Nashorn does not provide window.btoa() 
+
+var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f&lt;e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n&gt;&gt;2;o=(n&amp;3)&lt;&lt;4|r&gt;&gt;4;u=(r&amp;15)&lt;&lt;2|i&gt;&gt;6;a=i&amp;63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9+/=]/g,"");while(f&lt;e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s&lt;&lt;2|o&gt;&gt;4;r=(o&amp;15)&lt;&lt;4|u&gt;&gt;2;i=(u&amp;3)&lt;&lt;6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/rn/g,"n");var t="";for(var n=0;n&lt;e.length;n++){var r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r)}else if(r&gt;127&amp;&amp;r&lt;2048){t+=String.fromCharCode(r&gt;&gt;6|192);t+=String.fromCharCode(r&amp;63|128)}else{t+=String.fromCharCode(r&gt;&gt;12|224);t+=String.fromCharCode(r&gt;&gt;6&amp;63|128);t+=String.fromCharCode(r&amp;63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n&lt;e.length){r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r);n++}else if(r&gt;191&amp;&amp;r&lt;224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&amp;31)&lt;&lt;6|c2&amp;63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&amp;15)&lt;&lt;12|(c2&amp;63)&lt;&lt;6|c3&amp;63);n+=3}}return t}};
+
+// MailGun Username and Password go here.
+var api_key = "2a63cc762aa63572a44048314f741a38-3e51f8d2-6db13053";
+
+var encoded = Base64.encode('api:' + api_key);
+"Basic " + encoded;</camunda:script>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="accountLoaded">Dear costumer,
+Thank you for loading your account. You can now continue to use our services.
+
+Sincerely,
+Maas Operator</camunda:inputParameter>
+          <camunda:inputParameter name="subjectAccountLoaded">Account Loaded</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0i6b65t</bpmn:incoming>
+      <bpmn:outgoing>Flow_05wgcio</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_05wgcio" sourceRef="Activity_136raim" targetRef="Event_0xzphms" />
+    <bpmn:serviceTask id="Activity_1uosri7" name="Warn user about blacklisting">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://api.mailgun.net/v3/sandbox45a4ec4aa29243c78be39889e9338d42.mailgun.org/messages</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/x-www-form-urlencoded</camunda:entry>
+                <camunda:entry key="Authorization">${basicAuth64}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="javascript">var data = {
+    "from": execution.getVariable("fromEmail"),
+    "to": execution.getVariable("email"),
+    "subject": execution.getVariable("subjectBlacklistWarning"),
+    "text": execution.getVariable("blacklistWarning")
+    };
+
+// Converts the JSON into a MailGun friendly params string
+emailContent = Object.keys(data).map(function(k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+}).join('&amp;')
+
+emailContent;</camunda:script>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="WsResponse">
+              <camunda:script scriptFormat="javascript">S('"response"', 'application/json');</camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="basicAuth64">
+            <camunda:script scriptFormat="javascript">// Base64 encoder object; used because Nashorn does not provide window.btoa() 
+
+var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f&lt;e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n&gt;&gt;2;o=(n&amp;3)&lt;&lt;4|r&gt;&gt;4;u=(r&amp;15)&lt;&lt;2|i&gt;&gt;6;a=i&amp;63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9+/=]/g,"");while(f&lt;e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s&lt;&lt;2|o&gt;&gt;4;r=(o&amp;15)&lt;&lt;4|u&gt;&gt;2;i=(u&amp;3)&lt;&lt;6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/rn/g,"n");var t="";for(var n=0;n&lt;e.length;n++){var r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r)}else if(r&gt;127&amp;&amp;r&lt;2048){t+=String.fromCharCode(r&gt;&gt;6|192);t+=String.fromCharCode(r&amp;63|128)}else{t+=String.fromCharCode(r&gt;&gt;12|224);t+=String.fromCharCode(r&gt;&gt;6&amp;63|128);t+=String.fromCharCode(r&amp;63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n&lt;e.length){r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r);n++}else if(r&gt;191&amp;&amp;r&lt;224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&amp;31)&lt;&lt;6|c2&amp;63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&amp;15)&lt;&lt;12|(c2&amp;63)&lt;&lt;6|c3&amp;63);n+=3}}return t}};
+
+// MailGun Username and Password go here.
+var api_key = "2a63cc762aa63572a44048314f741a38-3e51f8d2-6db13053";
+
+var encoded = Base64.encode('api:' + api_key);
+"Basic " + encoded;</camunda:script>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="blacklistWarning">Dear costumer, 
+As mentioned in the previously sent emails, your account balance as reached 0€ or below, since you failed to load your account, we are forced to blacklist your account. In order to undo this operation you have 2 weeks to load your account. If this requirement is not met we will delete your account.
+
+
+Sincerely,
+Maas Operator</camunda:inputParameter>
+          <camunda:inputParameter name="subjectBlacklistWarning">Account Blacklist</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0h46uie</bpmn:incoming>
+      <bpmn:outgoing>Flow_19g68f6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_19g68f6" sourceRef="Activity_1uosri7" targetRef="Activity_0cae53k" />
+    <bpmn:sequenceFlow id="Flow_17rf95g" sourceRef="Activity_0qkzdjo" targetRef="Event_0gss7p0" />
+    <bpmn:serviceTask id="Activity_0qkzdjo" name="Undo Blacklist" camunda:type="external" camunda:topic="undo-blacklist">
+      <bpmn:incoming>Flow_0003xhi</bpmn:incoming>
+      <bpmn:outgoing>Flow_17rf95g</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_1xinp91" name="Notice user about loaded account">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://api.mailgun.net/v3/sandbox45a4ec4aa29243c78be39889e9338d42.mailgun.org/messages</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/x-www-form-urlencoded</camunda:entry>
+                <camunda:entry key="Authorization">${basicAuth64}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="javascript">var data = {
+    "from": execution.getVariable("fromEmail"),
+    "to": execution.getVariable("email"),
+    "subject": execution.getVariable("subjectAccountLoaded"),
+    "text": execution.getVariable("accountLoaded")
+    };
+
+// Converts the JSON into a MailGun friendly params string
+emailContent = Object.keys(data).map(function(k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+}).join('&amp;')
+
+emailContent;</camunda:script>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="WsResponse">
+              <camunda:script scriptFormat="javascript">S('"response"', 'application/json');</camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="basicAuth64">
+            <camunda:script scriptFormat="javascript">// Base64 encoder object; used because Nashorn does not provide window.btoa() 
+
+var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f&lt;e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n&gt;&gt;2;o=(n&amp;3)&lt;&lt;4|r&gt;&gt;4;u=(r&amp;15)&lt;&lt;2|i&gt;&gt;6;a=i&amp;63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9+/=]/g,"");while(f&lt;e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s&lt;&lt;2|o&gt;&gt;4;r=(o&amp;15)&lt;&lt;4|u&gt;&gt;2;i=(u&amp;3)&lt;&lt;6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/rn/g,"n");var t="";for(var n=0;n&lt;e.length;n++){var r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r)}else if(r&gt;127&amp;&amp;r&lt;2048){t+=String.fromCharCode(r&gt;&gt;6|192);t+=String.fromCharCode(r&amp;63|128)}else{t+=String.fromCharCode(r&gt;&gt;12|224);t+=String.fromCharCode(r&gt;&gt;6&amp;63|128);t+=String.fromCharCode(r&amp;63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n&lt;e.length){r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r);n++}else if(r&gt;191&amp;&amp;r&lt;224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&amp;31)&lt;&lt;6|c2&amp;63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&amp;15)&lt;&lt;12|(c2&amp;63)&lt;&lt;6|c3&amp;63);n+=3}}return t}};
+
+// MailGun Username and Password go here.
+var api_key = "2a63cc762aa63572a44048314f741a38-3e51f8d2-6db13053";
+
+var encoded = Base64.encode('api:' + api_key);
+"Basic " + encoded;</camunda:script>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="accountLoaded">Dear costumer,
+Thank you for loading your account. You can now continue to use our services.
+
+Sincerely,
+Maas Operator</camunda:inputParameter>
+          <camunda:inputParameter name="subjectAccountLoaded">Account Loaded</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ipwx9g</bpmn:incoming>
+      <bpmn:outgoing>Flow_0003xhi</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0003xhi" sourceRef="Activity_1xinp91" targetRef="Activity_0qkzdjo" />
+    <bpmn:serviceTask id="Activity_0f4j90h" name="Warn user about removal">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="url">https://api.mailgun.net/v3/sandbox45a4ec4aa29243c78be39889e9338d42.mailgun.org/messages</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="content-type">application/x-www-form-urlencoded</camunda:entry>
+                <camunda:entry key="Authorization">${basicAuth64}</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="payload">
+              <camunda:script scriptFormat="javascript">var data = {
+    "from": execution.getVariable("fromEmail"),
+    "to": execution.getVariable("email"),
+    "subject": execution.getVariable("subjectRemovalWarning"),
+    "text": execution.getVariable("removalWarning")
+    };
+
+// Converts the JSON into a MailGun friendly params string
+emailContent = Object.keys(data).map(function(k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
+}).join('&amp;')
+
+emailContent;</camunda:script>
+            </camunda:inputParameter>
+            <camunda:outputParameter name="WsResponse">
+              <camunda:script scriptFormat="javascript">S('"response"', 'application/json');</camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="basicAuth64">
+            <camunda:script scriptFormat="javascript">// Base64 encoder object; used because Nashorn does not provide window.btoa() 
+
+var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f&lt;e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n&gt;&gt;2;o=(n&amp;3)&lt;&lt;4|r&gt;&gt;4;u=(r&amp;15)&lt;&lt;2|i&gt;&gt;6;a=i&amp;63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9+/=]/g,"");while(f&lt;e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s&lt;&lt;2|o&gt;&gt;4;r=(o&amp;15)&lt;&lt;4|u&gt;&gt;2;i=(u&amp;3)&lt;&lt;6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/rn/g,"n");var t="";for(var n=0;n&lt;e.length;n++){var r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r)}else if(r&gt;127&amp;&amp;r&lt;2048){t+=String.fromCharCode(r&gt;&gt;6|192);t+=String.fromCharCode(r&amp;63|128)}else{t+=String.fromCharCode(r&gt;&gt;12|224);t+=String.fromCharCode(r&gt;&gt;6&amp;63|128);t+=String.fromCharCode(r&amp;63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n&lt;e.length){r=e.charCodeAt(n);if(r&lt;128){t+=String.fromCharCode(r);n++}else if(r&gt;191&amp;&amp;r&lt;224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&amp;31)&lt;&lt;6|c2&amp;63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&amp;15)&lt;&lt;12|(c2&amp;63)&lt;&lt;6|c3&amp;63);n+=3}}return t}};
+
+// MailGun Username and Password go here.
+var api_key = "2a63cc762aa63572a44048314f741a38-3e51f8d2-6db13053";
+
+var encoded = Base64.encode('api:' + api_key);
+"Basic " + encoded;</camunda:script>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="removalWarning">Dear costumer,
+Your account will be removed. Thank your for using our services.
+
+
+Sincerely,
+Maas Operator</camunda:inputParameter>
+          <camunda:inputParameter name="subjectRemovalWarning">Account Removal</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0g2147m</bpmn:incoming>
+      <bpmn:outgoing>Flow_02wdnyi</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_02wdnyi" sourceRef="Activity_0f4j90h" targetRef="Activity_01xnhju" />
+  </bpmn:process>
+  <bpmn:message id="Message_0jx3bh3" name="UserLoadsAccountMessage" />
+  <bpmn:message id="Message_0w6areq" name="UserLoadsAccountMessage" />
+  <bpmn:message id="Message_01h5lz2" name="UserLoadsAccountMessage" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="dunning-process">
+      <bpmndi:BPMNEdge id="Flow_02wdnyi_di" bpmnElement="Flow_02wdnyi">
+        <di:waypoint x="1910" y="120" />
+        <di:waypoint x="2000" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0003xhi_di" bpmnElement="Flow_0003xhi">
+        <di:waypoint x="1910" y="250" />
+        <di:waypoint x="2000" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17rf95g_di" bpmnElement="Flow_17rf95g">
+        <di:waypoint x="2100" y="250" />
+        <di:waypoint x="2172" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19g68f6_di" bpmnElement="Flow_19g68f6">
+        <di:waypoint x="1310" y="120" />
+        <di:waypoint x="1400" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05wgcio_di" bpmnElement="Flow_05wgcio">
+        <di:waypoint x="1220" y="250" />
+        <di:waypoint x="1292" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kd1vna_di" bpmnElement="Flow_1kd1vna">
+        <di:waypoint x="740" y="250" />
+        <di:waypoint x="782" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1einoen_di" bpmnElement="Flow_1einoen">
+        <di:waypoint x="860" y="120" />
+        <di:waypoint x="935" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pxx8p0_di" bpmnElement="Flow_1pxx8p0">
+        <di:waypoint x="198" y="120" />
+        <di:waypoint x="300" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ipwx9g_di" bpmnElement="Flow_1ipwx9g">
+        <di:waypoint x="1728" y="250" />
+        <di:waypoint x="1810" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1r6sphk_di" bpmnElement="Flow_1r6sphk">
+        <di:waypoint x="1600" y="145" />
+        <di:waypoint x="1600" y="250" />
+        <di:waypoint x="1692" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0f2u5f9_di" bpmnElement="Flow_0f2u5f9">
+        <di:waypoint x="1625" y="120" />
+        <di:waypoint x="1702" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rqdsh4_di" bpmnElement="Flow_0rqdsh4">
+        <di:waypoint x="1500" y="120" />
+        <di:waypoint x="1575" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wtef8b_di" bpmnElement="Flow_0wtef8b">
+        <di:waypoint x="2100" y="120" />
+        <di:waypoint x="2192" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0g2147m_di" bpmnElement="Flow_0g2147m">
+        <di:waypoint x="1738" y="120" />
+        <di:waypoint x="1810" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0i6b65t_di" bpmnElement="Flow_0i6b65t">
+        <di:waypoint x="1038" y="250" />
+        <di:waypoint x="1120" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ndp8ys_di" bpmnElement="Flow_0ndp8ys">
+        <di:waypoint x="960" y="145" />
+        <di:waypoint x="960" y="250" />
+        <di:waypoint x="1002" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ld9e5z_di" bpmnElement="Flow_0ld9e5z">
+        <di:waypoint x="985" y="120" />
+        <di:waypoint x="1082" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jlvsf5_di" bpmnElement="Flow_1jlvsf5">
+        <di:waypoint x="598" y="250" />
+        <di:waypoint x="640" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11pjtz0_di" bpmnElement="Flow_11pjtz0">
+        <di:waypoint x="520" y="145" />
+        <di:waypoint x="520" y="250" />
+        <di:waypoint x="562" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lva4hv_di" bpmnElement="Flow_0lva4hv">
+        <di:waypoint x="545" y="120" />
+        <di:waypoint x="612" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h46uie_di" bpmnElement="Flow_0h46uie">
+        <di:waypoint x="1118" y="120" />
+        <di:waypoint x="1210" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0e2agql_di" bpmnElement="Flow_0e2agql">
+        <di:waypoint x="648" y="120" />
+        <di:waypoint x="760" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06v0e00_di" bpmnElement="Flow_06v0e00">
+        <di:waypoint x="400" y="120" />
+        <di:waypoint x="495" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_13zixso_di" bpmnElement="Activity_0cae53k">
+        <dc:Bounds x="1400" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1qdyi27_di" bpmnElement="Event_1qdyi27">
+        <dc:Bounds x="2192" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2169" y="145" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1yk5aw3_di" bpmnElement="Event_11enjsq">
+        <dc:Bounds x="612" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="610" y="145" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1wv2562_di" bpmnElement="Event_0um9klq">
+        <dc:Bounds x="1082" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1080" y="145" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0qadcnb_di" bpmnElement="Gateway_077puag">
+        <dc:Bounds x="495" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1o181oa_di" bpmnElement="Event_1o181oa">
+        <dc:Bounds x="782" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="758" y="275" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qxs71e_di" bpmnElement="Activity_01xnhju">
+        <dc:Bounds x="2000" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ehoaz6_di" bpmnElement="Event_0v2unce">
+        <dc:Bounds x="562" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="554" y="275" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0yiu14p_di" bpmnElement="Gateway_1ftbf5i">
+        <dc:Bounds x="935" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0xzphms_di" bpmnElement="Event_0xzphms">
+        <dc:Bounds x="1292" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1268" y="275" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0mz1he2_di" bpmnElement="Event_0mz1he2">
+        <dc:Bounds x="1002" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="994" y="275" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1ffymuc_di" bpmnElement="Gateway_00zrvzk">
+        <dc:Bounds x="1575" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1tdxled_di" bpmnElement="Event_177jzom">
+        <dc:Bounds x="1702" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1700" y="145" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0pybfh2_di" bpmnElement="Event_0pybfh2">
+        <dc:Bounds x="1692" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1684" y="275" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0gss7p0_di" bpmnElement="Event_0gss7p0">
+        <dc:Bounds x="2172" y="232" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2148" y="275" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0j17sbl_di" bpmnElement="Activity_0j17sbl">
+        <dc:Bounds x="300" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ctbm7j_di" bpmnElement="Event_1ctbm7j">
+        <dc:Bounds x="162" y="102" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="142" y="145" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0h1dijh_di" bpmnElement="Activity_0h1dijh">
+        <dc:Bounds x="760" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0820tt0_di" bpmnElement="Activity_0820tt0">
+        <dc:Bounds x="640" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_136raim_di" bpmnElement="Activity_136raim">
+        <dc:Bounds x="1120" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1uosri7_di" bpmnElement="Activity_1uosri7">
+        <dc:Bounds x="1210" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03z8le7_di" bpmnElement="Activity_0qkzdjo">
+        <dc:Bounds x="2000" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xinp91_di" bpmnElement="Activity_1xinp91">
+        <dc:Bounds x="1810" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0f4j90h_di" bpmnElement="Activity_0f4j90h">
+        <dc:Bounds x="1810" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

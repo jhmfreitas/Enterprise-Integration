@@ -23,7 +23,7 @@ import org.json.simple.parser.JSONParser;
 //Service Implementation
 @WebService(endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-52-202-49-153.compute-1.amazonaws.com";
+	static String AWSIP = "ec2-35-173-139-11.compute-1.amazonaws.com";
 	static String AWSDBIP = "operatordb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
 	static KafkaProducer<String, String> producer;
 	static KafkaConsumer<String, String> consumer;
@@ -146,11 +146,9 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		}
 		float baseCost;
 		if(baseCostString.equals("null")) {
-			System.out.println("processTripCostEvent: basecost is null -> " + baseCostString + "\n");
 			baseCost = getOperatorBaseCost(operatorName);
 			System.out.println("BaseCost:" + baseCost  + "\n");
 		}else {
-			System.out.println("processTripCostEvent: basecost is -> " + baseCostString + "\n");
 			baseCost = Float.valueOf(baseCostString);
 			System.out.println("BaseCost:" + baseCost  + "\n");
 		}
@@ -168,7 +166,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			s.setString(1, operatorName);
 			resultSet = s.executeQuery();
 			while (resultSet.next()) {
-				System.out.println("Got operator cost ->" + resultSet.getFloat("price") + "\n");
+				System.out.println("Operator Cost ->" + resultSet.getFloat("price") + "\n");
 				return resultSet.getFloat("price");
 		    }
 		    
@@ -195,11 +193,9 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 			resultSet = s.executeQuery();
 			float discountValueAux = 0;
 			while (resultSet.next()) {
-				System.out.println("getDiscount : Got results\n");
 				int value = resultSet.getInt("value");
-				System.out.println("getDiscount : value=" + value + "\n");
+				System.out.println("getDiscount : Applicable discount found = " + value + "\n");
 				if(value > discountValueAux) {
-					System.out.println("getDiscount : Discount found = " + value + "\n");
 					discountValueAux = value;
 				}
 		    }
@@ -207,7 +203,7 @@ public class OperatorManagementServiceImpl implements OperatorManagementService 
 		    s.close();
 		    resultSet.close();
 		    if(discountValueAux != 0){
-		    	System.out.println("Discount Found! :" + discountValueAux/100.0f + "\n");
+		    	System.out.println("Best discount :" + discountValueAux/100.0f + "\n");
 		    	return discountValueAux/100.0f;
 		    }
 		} catch (SQLException e) {

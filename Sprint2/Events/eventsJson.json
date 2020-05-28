@@ -86,7 +86,7 @@
         "operator": "Gira",
         "info": {
             "Id": "1",
-            "Time":"3600", -> just used for user history
+            "Time":"3600",
             "Price": "12.60",
             "Timestamp":"2020-02-29 20: 57: 10.294"
         }
