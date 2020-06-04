@@ -19,10 +19,11 @@ import org.json.simple.parser.ParseException;
 
 public class UserRegisterWorker {
 	private final static Logger LOGGER = Logger.getLogger(UserRegisterWorker.class.getName());
-	private final static String KongIP = "http://ec2-52-90-167-63.compute-1.amazonaws.com:8000";
+	private final static String KongIP = "http://ec2-3-86-40-136.compute-1.amazonaws.com:8000";
+	private final static String CamundaIP = "http://ec2-54-175-77-51.compute-1.amazonaws.com:8080/engine-rest";
 	
 	public static void main(String[] args) {
-		ExternalTaskClient uniqueClient = ExternalTaskClient.create().baseUrl("http://192.168.99.100:8080/engine-rest")
+		ExternalTaskClient uniqueClient = ExternalTaskClient.create().baseUrl(CamundaIP)
 				.asyncResponseTimeout(10000).build();
 		uniqueClient.subscribe("user-exists").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -60,7 +61,7 @@ public class UserRegisterWorker {
 			}
 		}).open();
 		
-		ExternalTaskClient validationClient = ExternalTaskClient.create().baseUrl("http://192.168.99.100:8080/engine-rest")
+		ExternalTaskClient validationClient = ExternalTaskClient.create().baseUrl(CamundaIP)
 				.asyncResponseTimeout(10000).build();
 		validationClient.subscribe("validate-user").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -85,7 +86,7 @@ public class UserRegisterWorker {
 			externalTaskService.complete(externalTask , Collections.singletonMap("validData", validData));
 		}).open();
 		
-		ExternalTaskClient nifValidationClient = ExternalTaskClient.create().baseUrl("http://192.168.99.100:8080/engine-rest")
+		ExternalTaskClient nifValidationClient = ExternalTaskClient.create().baseUrl(CamundaIP)
 				.asyncResponseTimeout(10000).build();
 		nifValidationClient.subscribe("validate-nif").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -121,7 +122,7 @@ public class UserRegisterWorker {
 		}).open();
 		
 		
-		ExternalTaskClient registrationClient = ExternalTaskClient.create().baseUrl("http://192.168.99.100:8080/engine-rest")
+		ExternalTaskClient registrationClient = ExternalTaskClient.create().baseUrl(CamundaIP)
 				.asyncResponseTimeout(10000).build();
 		registrationClient.subscribe("create-user").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();

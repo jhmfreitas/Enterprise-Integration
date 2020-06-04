@@ -35,8 +35,8 @@ import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 public class PaymentService implements RequestStreamHandler {
 	String AWSDBIP = "userdb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
-	String AWSIP = "ec2-35-173-139-11.compute-1.amazonaws.com";
-	String CamundaIP = "ec2-54-82-161-3.compute-1.amazonaws.com";
+	String AWSIP = "ec2-3-90-151-30.compute-1.amazonaws.com";
+	String CamundaIP = "ec2-54-175-77-51.compute-1.amazonaws.com";
 	String groupId = "PaymentService";
 	Connection conn = null;
 	KafkaConsumer<String, String> consumer;

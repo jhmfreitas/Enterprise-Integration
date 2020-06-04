@@ -5,7 +5,7 @@
       <bpmn:outgoing>Flow_0nkxhi6</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_0nkxhi6" sourceRef="StartEvent_1" targetRef="Activity_03p5f72" />
-    <bpmn:userTask id="Activity_03p5f72" name="User provides info" camunda:assignee="demo">
+    <bpmn:userTask id="Activity_03p5f72" name="User provides info" camunda:assignee="joao">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="nif" label="NIF" type="string" />
@@ -180,6 +180,40 @@ Maas Operator</camunda:inputParameter>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0g82da1">
+      <bpmndi:BPMNEdge id="Flow_1cnogeh_di" bpmnElement="Flow_1cnogeh">
+        <di:waypoint x="1850" y="142" />
+        <di:waypoint x="1850" y="240" />
+        <di:waypoint x="1915" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1858" y="188" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1knbwq5_di" bpmnElement="Flow_1knbwq5">
+        <di:waypoint x="1875" y="117" />
+        <di:waypoint x="2172" y="117" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2015" y="99" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1a2tk35_di" bpmnElement="Flow_1a2tk35">
+        <di:waypoint x="2100" y="353" />
+        <di:waypoint x="2172" y="353" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14ayw5v_di" bpmnElement="Flow_14ayw5v">
+        <di:waypoint x="1940" y="265" />
+        <di:waypoint x="1940" y="353" />
+        <di:waypoint x="2000" y="353" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1947" y="306" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0l4elc7_di" bpmnElement="Flow_0l4elc7">
+        <di:waypoint x="1965" y="240" />
+        <di:waypoint x="2172" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2062" y="222" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0vvytp9_di" bpmnElement="Flow_0vvytp9">
         <di:waypoint x="1540" y="117" />
         <di:waypoint x="1610" y="117" />
@@ -257,40 +291,6 @@ Maas Operator</camunda:inputParameter>
         <di:waypoint x="148" y="117" />
         <di:waypoint x="200" y="117" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0l4elc7_di" bpmnElement="Flow_0l4elc7">
-        <di:waypoint x="1965" y="240" />
-        <di:waypoint x="2172" y="240" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2062" y="222" width="15" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1cnogeh_di" bpmnElement="Flow_1cnogeh">
-        <di:waypoint x="1850" y="142" />
-        <di:waypoint x="1850" y="240" />
-        <di:waypoint x="1915" y="240" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1858" y="188" width="15" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_14ayw5v_di" bpmnElement="Flow_14ayw5v">
-        <di:waypoint x="1940" y="265" />
-        <di:waypoint x="1940" y="353" />
-        <di:waypoint x="2000" y="353" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1947" y="306" width="18" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1a2tk35_di" bpmnElement="Flow_1a2tk35">
-        <di:waypoint x="2100" y="353" />
-        <di:waypoint x="2172" y="353" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1knbwq5_di" bpmnElement="Flow_1knbwq5">
-        <di:waypoint x="1875" y="117" />
-        <di:waypoint x="2172" y="117" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2015" y="99" width="18" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="112" y="99" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -308,6 +308,12 @@ Maas Operator</camunda:inputParameter>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_16jtz9e_di" bpmnElement="Activity_0025m24">
         <dc:Bounds x="1280" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0yp01d9_di" bpmnElement="Event_0yp01d9">
+        <dc:Bounds x="2172" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2180" y="265" width="20" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0lcre1o_di" bpmnElement="Activity_0lcre1o">
         <dc:Bounds x="1610" y="77" width="100" height="80" />
@@ -350,12 +356,6 @@ Maas Operator</camunda:inputParameter>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0vxatzo_di" bpmnElement="Activity_149xo6g">
         <dc:Bounds x="1440" y="77" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0yp01d9_di" bpmnElement="Event_0yp01d9">
-        <dc:Bounds x="2172" y="222" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2180" y="265" width="20" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0axd6v1_di" bpmnElement="Gateway_0axd6v1" isMarkerVisible="true">
         <dc:Bounds x="1915" y="215" width="50" height="50" />

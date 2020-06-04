@@ -33,7 +33,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1aoibuz" sourceRef="Activity_1qodhjr" targetRef="Gateway_1hdfvfq" />
     <bpmn:sequenceFlow id="Flow_18vcqxo" sourceRef="Activity_0hvxta2" targetRef="Activity_1qodhjr" />
-    <bpmn:userTask id="Activity_0hvxta2" name="User Provides Info" camunda:assignee="demo">
+    <bpmn:userTask id="Activity_0hvxta2" name="User Provides Info" camunda:assignee="joao">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="email" label="Email" type="string" />
@@ -157,6 +157,10 @@ Maas Operator</camunda:inputParameter>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="user-registration">
+      <bpmndi:BPMNEdge id="Flow_1u2zipp_di" bpmnElement="Flow_1u2zipp">
+        <di:waypoint x="1700" y="117" />
+        <di:waypoint x="1802" y="117" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1h1hfza_di" bpmnElement="Flow_1h1hfza">
         <di:waypoint x="1240" y="142" />
         <di:waypoint x="1240" y="230" />
@@ -226,14 +230,16 @@ Maas Operator</camunda:inputParameter>
         <di:waypoint x="178" y="117" />
         <di:waypoint x="240" y="117" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1u2zipp_di" bpmnElement="Flow_1u2zipp">
-        <di:waypoint x="1700" y="117" />
-        <di:waypoint x="1802" y="117" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="142" y="99" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="148" y="142" width="25" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_042kgfq_di" bpmnElement="Event_042kgfq">
+        <dc:Bounds x="1802" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1787" y="142" width="66" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1oije3l_di" bpmnElement="Activity_19r8pyo">
@@ -285,12 +291,6 @@ Maas Operator</camunda:inputParameter>
         <dc:Bounds x="1312" y="212" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1305" y="255" width="50" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_042kgfq_di" bpmnElement="Event_042kgfq">
-        <dc:Bounds x="1802" y="99" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1787" y="142" width="66" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1u65vbd_di" bpmnElement="Activity_1u65vbd">

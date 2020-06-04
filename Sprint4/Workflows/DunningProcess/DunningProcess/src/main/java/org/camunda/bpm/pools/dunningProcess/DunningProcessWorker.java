@@ -24,9 +24,11 @@ import org.json.simple.parser.ParseException;
 
 public class DunningProcessWorker {
 	private final static Logger LOGGER = Logger.getLogger(DunningProcessWorker.class.getName());
-	private final static String KongIP = "";
+	private final static String KongIP = "http://ec2-3-86-40-136.compute-1.amazonaws.com:8000";
+	private final static String CamundaIP = "http://ec2-54-175-77-51.compute-1.amazonaws.com:8080/engine-rest";
+	
 	public static void main(String[] args) {
-		ExternalTaskClient blacklistClient = ExternalTaskClient.create().baseUrl("http://192.168.99.100:8080/engine-rest")
+		ExternalTaskClient blacklistClient = ExternalTaskClient.create().baseUrl(CamundaIP)
 				.asyncResponseTimeout(10000).build();
 		blacklistClient.subscribe("blacklist-user").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -64,7 +66,7 @@ public class DunningProcessWorker {
 			}
 		}).open();
 		
-		ExternalTaskClient undoBlacklistClient = ExternalTaskClient.create().baseUrl("http://192.168.99.100:8080/engine-rest")
+		ExternalTaskClient undoBlacklistClient = ExternalTaskClient.create().baseUrl(CamundaIP)
 				.asyncResponseTimeout(10000).build();
 		undoBlacklistClient.subscribe("undo-blacklist").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -102,7 +104,7 @@ public class DunningProcessWorker {
 			}
 		}).open();
 		
-		ExternalTaskClient removeUserClient = ExternalTaskClient.create().baseUrl("http://192.168.99.100:8080/engine-rest")
+		ExternalTaskClient removeUserClient = ExternalTaskClient.create().baseUrl(CamundaIP)
 				.asyncResponseTimeout(10000).build();
 		removeUserClient.subscribe("remove-user").lockDuration(1000).handler((externalTask, externalTaskService) -> {
 			DefaultHttpClient httpClient = new DefaultHttpClient();

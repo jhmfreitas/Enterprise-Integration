@@ -32,8 +32,8 @@ import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 
 public class UserManagementService implements RequestStreamHandler {
 	String AWSDBIP = "userdb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
-	String AWSIP = "ec2-35-173-139-11.compute-1.amazonaws.com";
-	//String AWSOperatorIP = "ec2-54-84-79-209.compute-1.amazonaws.com";
+	String AWSDBOperatorIP = "operatordb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
+	String AWSIP = "ec2-3-90-151-30.compute-1.amazonaws.com";
 	String groupId = "UserManagementService";
 	KafkaProducer<String, String> producer;
 	Connection conn = null;
@@ -62,7 +62,7 @@ public class UserManagementService implements RequestStreamHandler {
 			boolean bdOperator_ok = false;
 			try {
 				Class.forName("com.mysql.cj.jdbc.Driver");
-				connOperatorDB = DriverManager.getConnection("jdbc:mysql://" + AWSDBIP + ":3306/operatordb", "admin", "projetoie");
+				connOperatorDB = DriverManager.getConnection("jdbc:mysql://" + AWSDBOperatorIP + ":3306/operatordb", "admin", "projetoie");
 				bdOperator_ok = true;
 			} catch (SQLException sqle) {
 				logger.log("Error : " + sqle.toString());

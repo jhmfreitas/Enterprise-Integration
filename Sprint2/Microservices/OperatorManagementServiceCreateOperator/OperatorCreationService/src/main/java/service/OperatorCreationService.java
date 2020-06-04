@@ -30,7 +30,7 @@ import kafka.utils.ZkUtils;
 
 public class OperatorCreationService implements RequestStreamHandler {
 
-	private static String AWSIP = "ec2-35-173-139-11.compute-1.amazonaws.com";
+	private static String AWSIP = "ec2-3-90-151-30.compute-1.amazonaws.com";
 	private Connection conn = null;
 	static String AWSDBIP = "operatordb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
 	

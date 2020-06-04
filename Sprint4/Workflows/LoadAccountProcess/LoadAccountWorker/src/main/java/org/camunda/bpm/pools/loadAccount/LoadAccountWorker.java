@@ -22,8 +22,8 @@ import java.util.logging.Logger;
 
 public class LoadAccountWorker {
 	private final static Logger LOGGER = Logger.getLogger(LoadAccountWorker.class.getName());
-	private final static String KongIP = "http://ec2-3-84-68-234.compute-1.amazonaws.com:8000";
-	private final static String CamundaIP = "http://ec2-54-82-161-3.compute-1.amazonaws.com:8080/engine-rest";
+	private final static String KongIP = "http://ec2-3-86-40-136.compute-1.amazonaws.com:8000";
+	private final static String CamundaIP = "http://ec2-54-175-77-51.compute-1.amazonaws.com:8080/engine-rest";
 	
 	public static void main(String[] args) {
 		ExternalTaskClient nifValidationClient = ExternalTaskClient.create().baseUrl(CamundaIP)

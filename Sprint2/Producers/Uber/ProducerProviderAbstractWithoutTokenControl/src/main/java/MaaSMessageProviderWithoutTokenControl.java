@@ -45,7 +45,8 @@ public class MaaSMessageProviderWithoutTokenControl {
 		// Incondicional
 		int position = rand.nextInt(ids.size());
 		String timest = new Timestamp(System.currentTimeMillis()).toString();
-		float price = rand.nextFloat()* (float) 100.0;
+		//float price = rand.nextFloat()* (float) 100.0;
+		float price = 15f;
 
 		response.setID(position);
 		response.setOperation("Usage");

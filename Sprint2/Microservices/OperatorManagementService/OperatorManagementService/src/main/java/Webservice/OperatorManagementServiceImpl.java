@@ -23,7 +23,7 @@ import org.json.simple.parser.JSONParser;
 //Service Implementation
 @WebService(endpointInterface = "Webservice.OperatorManagementService")
 public class OperatorManagementServiceImpl implements OperatorManagementService {
-	static String AWSIP = "ec2-35-173-139-11.compute-1.amazonaws.com";
+	static String AWSIP = "ec2-3-90-151-30.compute-1.amazonaws.com";
 	static String AWSDBIP = "operatordb.ca14fw262vr6.us-east-1.rds.amazonaws.com";
 	static KafkaProducer<String, String> producer;
 	static KafkaConsumer<String, String> consumer;
