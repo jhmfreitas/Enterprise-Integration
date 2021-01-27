@@ -1,7 +1,0 @@
-{
-  "type": "payment-order",
-  "token": "1c0a3c6b-9405-4219-b550-fb28413a9b83",
-  "payment_details": {
-    "amount": 3000
-  }
-}

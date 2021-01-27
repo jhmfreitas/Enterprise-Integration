@@ -1,3 +1,0 @@
-service.host=hostname
-service.port=1234
-service.path=/endpoint
